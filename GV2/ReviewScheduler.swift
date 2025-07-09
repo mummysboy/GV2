@@ -8,6 +8,7 @@ struct SimpleReview: Identifiable {
     let rating: Double
     let comment: String
     let date: Date
+    let isFromFriend: Bool
 }
 
 struct AppReview: Identifiable, Codable {
@@ -50,18 +51,18 @@ class ReviewScheduler: ObservableObject {
     private func loadSampleData() {
         // Sample gig reviews
         gigReviews = [
-            SimpleReview(id: "1", reviewerName: "Sarah Johnson", rating: 4.5, comment: "Excellent service! Very professional and completed the work on time.", date: Date().addingTimeInterval(-86400)),
-            SimpleReview(id: "2", reviewerName: "Mike Chen", rating: 5.0, comment: "Amazing quality and great communication throughout the project.", date: Date().addingTimeInterval(-172800)),
-            SimpleReview(id: "3", reviewerName: "Emily Davis", rating: 4.0, comment: "Good work, would recommend to others.", date: Date().addingTimeInterval(-259200))
+            SimpleReview(id: "1", reviewerName: "Sarah Johnson", rating: 4.5, comment: "Excellent service! Very professional and completed the work on time.", date: Date().addingTimeInterval(-86400), isFromFriend: true),
+            SimpleReview(id: "2", reviewerName: "Mike Chen", rating: 5.0, comment: "Amazing quality and great communication throughout the project.", date: Date().addingTimeInterval(-172800), isFromFriend: false),
+            SimpleReview(id: "3", reviewerName: "Emily Davis", rating: 4.0, comment: "Good work, would recommend to others.", date: Date().addingTimeInterval(-259200), isFromFriend: true)
         ]
         
         // Sample provider reviews
         allProviderReviews = [
-            SimpleReview(id: "1", reviewerName: "Sarah Johnson", rating: 4.5, comment: "Excellent service! Very professional and completed the work on time.", date: Date().addingTimeInterval(-86400)),
-            SimpleReview(id: "2", reviewerName: "Mike Chen", rating: 5.0, comment: "Amazing quality and great communication throughout the project.", date: Date().addingTimeInterval(-172800)),
-            SimpleReview(id: "3", reviewerName: "Emily Davis", rating: 4.0, comment: "Good work, would recommend to others.", date: Date().addingTimeInterval(-259200)),
-            SimpleReview(id: "4", reviewerName: "Alex Thompson", rating: 4.8, comment: "Very satisfied with the results. Highly recommend!", date: Date().addingTimeInterval(-345600)),
-            SimpleReview(id: "5", reviewerName: "Lisa Wang", rating: 4.2, comment: "Professional and reliable service provider.", date: Date().addingTimeInterval(-432000))
+            SimpleReview(id: "1", reviewerName: "Sarah Johnson", rating: 4.5, comment: "Excellent service! Very professional and completed the work on time.", date: Date().addingTimeInterval(-86400), isFromFriend: true),
+            SimpleReview(id: "2", reviewerName: "Mike Chen", rating: 5.0, comment: "Amazing quality and great communication throughout the project.", date: Date().addingTimeInterval(-172800), isFromFriend: false),
+            SimpleReview(id: "3", reviewerName: "Emily Davis", rating: 4.0, comment: "Good work, would recommend to others.", date: Date().addingTimeInterval(-259200), isFromFriend: true),
+            SimpleReview(id: "4", reviewerName: "Alex Thompson", rating: 4.8, comment: "Very satisfied with the results. Highly recommend!", date: Date().addingTimeInterval(-345600), isFromFriend: false),
+            SimpleReview(id: "5", reviewerName: "Lisa Wang", rating: 4.2, comment: "Professional and reliable service provider.", date: Date().addingTimeInterval(-432000), isFromFriend: true)
         ]
     }
     

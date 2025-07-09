@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import Foundation
 
 struct ProviderProfileView: View {
     let provider: User
@@ -286,6 +287,18 @@ struct ProviderProfileView: View {
                         HStack {
                             Text(review.reviewerName)
                                 .fontWeight(.semibold)
+                            
+                            // Friend badge
+                            if review.isFromFriend {
+                                Text("👤 Friend")
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.2))
+                                    .foregroundColor(.green)
+                                    .clipShape(Capsule())
+                            }
+                            
                             Spacer()
                             Text(String(format: "%.1f ★", review.rating))
                                 .foregroundColor(.yellow)

@@ -62,10 +62,27 @@
         <attribute name="totalReviews" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="contactPreferences" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="connections" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <relationship name="conversations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="participants" inverseEntity="Conversation"/>
         <relationship name="gigs" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Gig" inverseName="provider" inverseEntity="Gig"/>
         <relationship name="reviews" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Review" inverseName="reviewer" inverseEntity="Review"/>
         <relationship name="sentMessages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="sender" inverseEntity="User"/>
+    </entity>
+    <entity name="UserConnection" representedClassName="UserConnection" syncable="YES" codeGenerationType="class">
+        <attribute name="connectedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="connectionType" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="connectedUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="incomingConnections" inverseEntity="User"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="User" inverseName="outgoingConnections" inverseEntity="User"/>
+    </entity>
+    <entity name="FriendActivity" representedClassName="FriendActivity" syncable="YES" codeGenerationType="class">
+        <attribute name="action" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="gigId" optional="YES" attributeType="String"/>
+        <attribute name="gigTitle" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isRead" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="User" inverseName="activities" inverseEntity="User"/>
     </entity>
     <elements>
         <element name="Gig" positionX="-63" positionY="-18" width="128" height="44"/>
@@ -73,5 +90,7 @@
         <element name="Conversation" positionX="-63" positionY="90" width="128" height="44"/>
         <element name="Review" positionX="-63" positionY="144" width="128" height="44"/>
         <element name="User" positionX="-63" positionY="198" width="128" height="44"/>
+        <element name="UserConnection" positionX="-63" positionY="252" width="128" height="44"/>
+        <element name="FriendActivity" positionX="-63" positionY="306" width="128" height="44"/>
     </elements>
 </model>

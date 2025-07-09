@@ -47,19 +47,26 @@ struct ContentView: View {
                         }
                         .tag(2)
                     
+                    SocialView()
+                        .tabItem {
+                            Image(systemName: "person.2.fill")
+                            Text("Social")
+                        }
+                        .tag(3)
+                    
                     NotificationView()
                         .tabItem {
                             Image(systemName: "bell.fill")
                             Text("Notifications")
                         }
-                        .tag(3)
+                        .tag(4)
                     
                     ProfileView()
                         .tabItem {
                             Image(systemName: "person.fill")
                             Text("Profile")
                         }
-                        .tag(4)
+                        .tag(5)
                 }
                 .accentColor(.purple)
                 .preferredColorScheme(.light)
@@ -1006,6 +1013,18 @@ struct GigDetailView: View {
                         HStack {
                             Text(review.reviewerName)
                                 .fontWeight(.semibold)
+                            
+                            // Friend badge
+                            if review.isFromFriend {
+                                Text("👤 Friend")
+                                    .font(.caption2)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.2))
+                                    .foregroundColor(.green)
+                                    .clipShape(Capsule())
+                            }
+                            
                             Spacer()
                             Text(String(format: "%.1f ★", review.rating))
                                 .foregroundColor(.yellow)
