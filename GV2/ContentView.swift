@@ -54,19 +54,12 @@ struct ContentView: View {
                         }
                         .tag(3)
                     
-                    NotificationView()
-                        .tabItem {
-                            Image(systemName: "bell.fill")
-                            Text("Notifications")
-                        }
-                        .tag(4)
-                    
                     ProfileView()
                         .tabItem {
                             Image(systemName: "person.fill")
                             Text("Profile")
                         }
-                        .tag(5)
+                        .tag(4)
                 }
                 .accentColor(.purple)
                 .preferredColorScheme(.light)
