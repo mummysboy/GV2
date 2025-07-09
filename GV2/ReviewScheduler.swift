@@ -1,6 +1,15 @@
 import Foundation
 import Combine
 
+// New Review struct as requested by user
+struct SimpleReview: Identifiable {
+    let id: String
+    let reviewerName: String
+    let rating: Double
+    let comment: String
+    let date: Date
+}
+
 struct AppReview: Identifiable, Codable {
     let id: UUID
     let gigId: String
@@ -21,16 +30,39 @@ class ReviewScheduler: ObservableObject {
     @Published var reviews: [AppReview] = []
     @Published var pendingReviewPrompts: [ServiceSession] = []
     
+    // Sample data for the new Review struct
+    @Published var gigReviews: [SimpleReview] = []
+    @Published var allProviderReviews: [SimpleReview] = []
+    
     private var timer: Timer?
     private let conversationMonitor: ConversationMonitor
     
     init(conversationMonitor: ConversationMonitor) {
         self.conversationMonitor = conversationMonitor
+        loadSampleData()
         startScheduler()
     }
     
     deinit {
         timer?.invalidate()
+    }
+    
+    private func loadSampleData() {
+        // Sample gig reviews
+        gigReviews = [
+            SimpleReview(id: "1", reviewerName: "Sarah Johnson", rating: 4.5, comment: "Excellent service! Very professional and completed the work on time.", date: Date().addingTimeInterval(-86400)),
+            SimpleReview(id: "2", reviewerName: "Mike Chen", rating: 5.0, comment: "Amazing quality and great communication throughout the project.", date: Date().addingTimeInterval(-172800)),
+            SimpleReview(id: "3", reviewerName: "Emily Davis", rating: 4.0, comment: "Good work, would recommend to others.", date: Date().addingTimeInterval(-259200))
+        ]
+        
+        // Sample provider reviews
+        allProviderReviews = [
+            SimpleReview(id: "1", reviewerName: "Sarah Johnson", rating: 4.5, comment: "Excellent service! Very professional and completed the work on time.", date: Date().addingTimeInterval(-86400)),
+            SimpleReview(id: "2", reviewerName: "Mike Chen", rating: 5.0, comment: "Amazing quality and great communication throughout the project.", date: Date().addingTimeInterval(-172800)),
+            SimpleReview(id: "3", reviewerName: "Emily Davis", rating: 4.0, comment: "Good work, would recommend to others.", date: Date().addingTimeInterval(-259200)),
+            SimpleReview(id: "4", reviewerName: "Alex Thompson", rating: 4.8, comment: "Very satisfied with the results. Highly recommend!", date: Date().addingTimeInterval(-345600)),
+            SimpleReview(id: "5", reviewerName: "Lisa Wang", rating: 4.2, comment: "Professional and reliable service provider.", date: Date().addingTimeInterval(-432000))
+        ]
     }
     
     func startScheduler() {
@@ -118,5 +150,20 @@ class ReviewScheduler: ObservableObject {
             (session.customerId == userId || session.providerId == userId) &&
             session.status == .review_prompted
         }
+    }
+    
+    // Load functions as requested by user
+    func loadGigReviews(for gigId: String) {
+        // In a real app, this would fetch from API
+        // For now, we'll use the sample data
+        print("Loading reviews for gig: \(gigId)")
+        // The sample data is already loaded in loadSampleData()
+    }
+    
+    func loadProviderReviews(for providerId: String) {
+        // In a real app, this would fetch from API
+        // For now, we'll use the sample data
+        print("Loading reviews for provider: \(providerId)")
+        // The sample data is already loaded in loadSampleData()
     }
 } 

@@ -205,60 +205,7 @@ struct ProviderProfileView: View {
                     }
                     
                     // Reviews Section
-                    let providerReviews = reviewScheduler.getReviewsForProvider(provider.id?.uuidString ?? "")
-                    if !providerReviews.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Text("Reviews")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                
-                                Spacer()
-                                
-                                if providerReviews.count > 3 {
-                                    Button("View All (\(providerReviews.count))") {
-                                        showingAllReviews = true
-                                    }
-                                    .font(.caption)
-                                    .foregroundColor(.purple)
-                                }
-                            }
-                            
-                            // Average rating display
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(String(format: "%.1f", reviewScheduler.getAverageRatingForProvider(provider.id?.uuidString ?? "")))
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                    
-                                    HStack {
-                                        ForEach(1...5, id: \.self) { star in
-                                            Image(systemName: star <= Int(reviewScheduler.getAverageRatingForProvider(provider.id?.uuidString ?? "")) ? "star.fill" : "star")
-                                                .font(.caption)
-                                                .foregroundColor(star <= Int(reviewScheduler.getAverageRatingForProvider(provider.id?.uuidString ?? "")) ? .yellow : .gray)
-                                        }
-                                    }
-                                }
-                                
-                                Spacer()
-                                
-                                Text("\(providerReviews.count) reviews")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            // Review cards
-                            VStack(spacing: 8) {
-                                ForEach(Array(providerReviews.prefix(3))) { review in
-                                    ReviewCardView(review: review)
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(Color(.systemBackground))
-                        .cornerRadius(16)
-                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
-                    }
+                    allReviewsSection
                     
                     // Provider's gigs
                     VStack(alignment: .leading, spacing: 12) {
@@ -319,6 +266,39 @@ struct ProviderProfileView: View {
         } message: {
             Text("Are you sure you want to report this provider? This action will be reviewed by our team.")
         }
+        .onAppear {
+            reviewScheduler.loadProviderReviews(for: provider.id?.uuidString ?? "")
+        }
+    }
+    
+    private var allReviewsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Reviews for \(provider.name ?? "Provider")")
+                .font(.headline)
+
+            if reviewScheduler.allProviderReviews.isEmpty {
+                Text("This provider hasn't been reviewed yet.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(reviewScheduler.allProviderReviews) { review in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(review.reviewerName)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            Text(String(format: "%.1f ★", review.rating))
+                                .foregroundColor(.yellow)
+                        }
+                        Text(review.comment)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.bottom, 6)
+                }
+            }
+        }
+        .padding(.top, 20)
     }
     
     private func preferenceIcon(for preference: String) -> String {

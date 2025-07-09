@@ -937,31 +937,7 @@ struct GigDetailView: View {
                     }
                     
                     // Reviews Section
-                    let gigReviews = reviewScheduler.getReviewsForGig(gig.id?.uuidString ?? "")
-                    if !gigReviews.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Text("Reviews")
-                                    .font(.headline)
-                                
-                                Spacer()
-                                
-                                if gigReviews.count > 3 {
-                                    Button("View All (\(gigReviews.count))") {
-                                        showingAllReviews = true
-                                    }
-                                    .font(.caption)
-                                    .foregroundColor(.purple)
-                                }
-                            }
-                            
-                            VStack(spacing: 8) {
-                                ForEach(Array(gigReviews.prefix(3))) { review in
-                                    ReviewCardView(review: review)
-                                }
-                            }
-                        }
-                    }
+                    reviewsSection
                     
                     // Action buttons
                     VStack(spacing: 12) {
@@ -1010,6 +986,39 @@ struct GigDetailView: View {
         .fullScreenCover(isPresented: $showingCall) {
             InAppCallView(provider: gig.provider ?? User())
         }
+        .onAppear {
+            reviewScheduler.loadGigReviews(for: gig.id?.uuidString ?? "")
+        }
+    }
+    
+    private var reviewsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Service Reviews")
+                .font(.headline)
+
+            if reviewScheduler.gigReviews.isEmpty {
+                Text("No reviews yet.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(reviewScheduler.gigReviews.prefix(3)) { review in
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text(review.reviewerName)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            Text(String(format: "%.1f ★", review.rating))
+                                .foregroundColor(.yellow)
+                        }
+                        Text(review.comment)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.bottom, 6)
+                }
+            }
+        }
+        .padding(.top, 20)
     }
 }
 
