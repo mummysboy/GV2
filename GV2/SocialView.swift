@@ -76,19 +76,26 @@ struct SocialView: View {
                 ConnectionsView()
             }
             .sheet(isPresented: $showingGigDetail) {
-                if let activity = selectedActivity {
+                if let activity = selectedActivity, let gig = getGig(for: activity.gigId) {
                     // Navigate to gig detail view with highlighted review
-                    GigDetailView(gig: getGig(for: activity.gigId), highlightedReviewId: activity.reviewId)
+                    GigDetailView(gig: gig, highlightedReviewId: activity.reviewId)
+                } else {
+                    Text("Gig not found or unavailable.")
+                        .font(.title2)
+                        .padding()
                 }
             }
         }
     }
     
     // Helper function to get Gig from gigId
-    private func getGig(for gigId: String) -> Gig {
+    private func getGig(for gigId: String) -> Gig? {
         let request: NSFetchRequest<Gig> = Gig.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", gigId)
-        return (try? viewContext.fetch(request).first) ?? Gig()
+        if let uuid = UUID(uuidString: gigId) {
+            request.predicate = NSPredicate(format: "id == %@", uuid as CVarArg)
+            return try? viewContext.fetch(request).first
+        }
+        return nil
     }
 }
 
@@ -96,6 +103,7 @@ struct SocialActivityFeed: View {
     let filter: SocialView.ActivityFilter
     @Binding var selectedActivity: SocialActivity?
     @Binding var showingGigDetail: Bool
+    @Environment(\.managedObjectContext) private var viewContext
     @State private var activities: [SocialActivity] = []
     
     var body: some View {
@@ -117,83 +125,30 @@ struct SocialActivityFeed: View {
     
     private func loadActivities() {
         // Enhanced mock data with review content
-        activities = [
-            SocialActivity(
-                id: "1",
-                friendName: "Jake",
-                isFriend: true,
-                action: "reviewed",
-                gigTitle: "Dog Walker",
-                rating: 5.0,
-                reviewSnippet: "Amazing service, my dog loved it! Very professional and reliable.",
-                fullReview: "Amazing service, my dog loved it! Very professional and reliable. The walker was punctual and sent me updates throughout the walk. My dog came back happy and tired. Highly recommend!",
-                timestamp: Date().addingTimeInterval(-3600),
-                gigId: "gig1",
-                reviewId: "review1",
-                gigImage: nil,
-                gigPrice: "$25/hour"
-            ),
-            SocialActivity(
-                id: "2",
-                friendName: "Emily",
-                isFriend: true,
-                action: "used",
-                gigTitle: "Home Cleaner",
-                rating: nil,
-                reviewSnippet: nil,
-                fullReview: nil,
-                timestamp: Date().addingTimeInterval(-7200),
-                gigId: "gig2",
-                reviewId: nil,
-                gigImage: nil,
-                gigPrice: "$80/visit"
-            ),
-            SocialActivity(
-                id: "3",
-                friendName: "Michael",
-                isFriend: true,
-                action: "reviewed",
-                gigTitle: "Guitar Lessons",
-                rating: 4.5,
-                reviewSnippet: "Great teacher, learned so much in just a few sessions.",
-                fullReview: "Great teacher, learned so much in just a few sessions. Very patient and explains things clearly. The lessons are well-structured and I can see my progress. Would definitely recommend!",
-                timestamp: Date().addingTimeInterval(-10800),
-                gigId: "gig3",
-                reviewId: "review3",
-                gigImage: nil,
-                gigPrice: "$60/hour"
-            ),
-            SocialActivity(
-                id: "4",
-                friendName: "Sarah",
-                isFriend: false,
-                action: "reviewed",
-                gigTitle: "Photography",
-                rating: 4.0,
-                reviewSnippet: "Beautiful photos, captured the moment perfectly.",
-                fullReview: "Beautiful photos, captured the moment perfectly. The photographer was creative and made us feel comfortable. The final images exceeded our expectations.",
-                timestamp: Date().addingTimeInterval(-14400),
-                gigId: "gig4",
-                reviewId: "review4",
-                gigImage: nil,
-                gigPrice: "$200/session"
-            ),
-            SocialActivity(
-                id: "5",
-                friendName: "Alex",
-                isFriend: true,
-                action: "reviewed",
-                gigTitle: "Tutoring",
-                rating: 5.0,
-                reviewSnippet: nil, // No written review, just rating
-                fullReview: nil,
-                timestamp: Date().addingTimeInterval(-18000),
-                gigId: "gig5",
-                reviewId: "review5",
-                gigImage: nil,
-                gigPrice: "$45/hour"
-            )
-        ]
+        let gigs = (try? viewContext.fetch(Gig.fetchRequest())) as? [Gig] ?? []
+        activities = []
+        if !gigs.isEmpty {
+            // Use up to 5 real gigs for the mock feed
+            for (i, gig) in gigs.prefix(5).enumerated() {
+                activities.append(
+                    SocialActivity(
+                        id: "mock-\(i)",
+                        friendName: ["Jake", "Emily", "Michael", "Sarah", "Alex"][i % 5],
+                        isFriend: i % 2 == 0,
+                        action: i % 2 == 0 ? "reviewed" : "used",
+                        gigTitle: gig.title ?? "Untitled Gig",
+                        rating: i % 2 == 0 ? Double(4 + i % 2) : nil,
+                        reviewSnippet: i % 2 == 0 ? "Sample review for \(gig.title ?? "Gig")" : nil,
+                        fullReview: i % 2 == 0 ? "This is a sample full review for \(gig.title ?? "Gig")." : nil,
+                        timestamp: Date().addingTimeInterval(Double(-3600 * (i + 1))),
+                        gigId: gig.id?.uuidString ?? "",
+                        reviewId: nil, // You can link to a real review if desired
+                        gigImage: nil,
+                        gigPrice: gig.priceType
+                    )
+                )
+            }
+        }
         
         // Apply filter
         switch filter {
