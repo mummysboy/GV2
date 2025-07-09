@@ -12,6 +12,15 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var selectedTab = 0
     @State private var showingOnboarding = false
+    @State private var showingReviewPrompt = false
+    @State private var pendingReviewSession: ServiceSession?
+    @StateObject private var conversationMonitor = ConversationMonitor()
+    @StateObject private var reviewScheduler: ReviewScheduler
+    
+    init() {
+        let monitor = ConversationMonitor()
+        self._reviewScheduler = StateObject(wrappedValue: ReviewScheduler(conversationMonitor: monitor))
+    }
     
     var body: some View {
         Group {
@@ -61,6 +70,22 @@ struct ContentView: View {
         .onAppear {
             if !hasUserProfile() {
                 showingOnboarding = true
+            } else {
+                checkForReviewPrompts()
+            }
+        }
+        .alert("Rate your experience", isPresented: $showingReviewPrompt) {
+            Button("Leave Review") {
+                if let session = pendingReviewSession {
+                    // In a real app, you would navigate to the review view
+                    // For now, we'll just mark it as prompted
+                    conversationMonitor.markSessionAsPrompted(session.id, for: "current_user")
+                }
+            }
+            Button("Not Now", role: .cancel) { }
+        } message: {
+            if let session = pendingReviewSession {
+                Text("Did you receive a service from \(getProviderName(for: session))?")
             }
         }
     }
@@ -69,6 +94,20 @@ struct ContentView: View {
         let request: NSFetchRequest<User> = User.fetchRequest()
         request.fetchLimit = 1
         return (try? viewContext.count(for: request)) ?? 0 > 0
+    }
+    
+    private func checkForReviewPrompts() {
+        let pendingReviews = reviewScheduler.getPendingReviewsForUser("current_user")
+        if let firstPending = pendingReviews.first {
+            pendingReviewSession = firstPending
+            showingReviewPrompt = true
+        }
+    }
+    
+    private func getProviderName(for session: ServiceSession) -> String {
+        // In a real app, you would fetch the provider name from the database
+        // For now, return a placeholder
+        return "Provider"
     }
 }
 
@@ -784,6 +823,15 @@ struct GigDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingChat = false
     @State private var showingCall = false
+    @State private var showingAllReviews = false
+    @StateObject private var reviewScheduler: ReviewScheduler
+    @StateObject private var conversationMonitor = ConversationMonitor()
+    
+    init(gig: Gig) {
+        self.gig = gig
+        let monitor = ConversationMonitor()
+        self._reviewScheduler = StateObject(wrappedValue: ReviewScheduler(conversationMonitor: monitor))
+    }
     
     var body: some View {
         NavigationView {
@@ -888,6 +936,33 @@ struct GigDetailView: View {
                         }
                     }
                     
+                    // Reviews Section
+                    let gigReviews = reviewScheduler.getReviewsForGig(gig.id?.uuidString ?? "")
+                    if !gigReviews.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text("Reviews")
+                                    .font(.headline)
+                                
+                                Spacer()
+                                
+                                if gigReviews.count > 3 {
+                                    Button("View All (\(gigReviews.count))") {
+                                        showingAllReviews = true
+                                    }
+                                    .font(.caption)
+                                    .foregroundColor(.purple)
+                                }
+                            }
+                            
+                            VStack(spacing: 8) {
+                                ForEach(Array(gigReviews.prefix(3))) { review in
+                                    ReviewCardView(review: review)
+                                }
+                            }
+                        }
+                    }
+                    
                     // Action buttons
                     VStack(spacing: 12) {
                         Button(action: { showingChat = true }) {
@@ -937,6 +1012,8 @@ struct GigDetailView: View {
         }
     }
 }
+
+
 
 #Preview {
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)

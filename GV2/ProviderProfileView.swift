@@ -8,6 +8,15 @@ struct ProviderProfileView: View {
     @State private var showingChat = false
     @State private var showingCall = false
     @State private var showingReport = false
+    @State private var showingAllReviews = false
+    @StateObject private var reviewScheduler: ReviewScheduler
+    @StateObject private var conversationMonitor = ConversationMonitor()
+    
+    init(provider: User) {
+        self.provider = provider
+        let monitor = ConversationMonitor()
+        self._reviewScheduler = StateObject(wrappedValue: ReviewScheduler(conversationMonitor: monitor))
+    }
     
     var body: some View {
         NavigationView {
@@ -195,6 +204,62 @@ struct ProviderProfileView: View {
                         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
                     }
                     
+                    // Reviews Section
+                    let providerReviews = reviewScheduler.getReviewsForProvider(provider.id?.uuidString ?? "")
+                    if !providerReviews.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text("Reviews")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                
+                                Spacer()
+                                
+                                if providerReviews.count > 3 {
+                                    Button("View All (\(providerReviews.count))") {
+                                        showingAllReviews = true
+                                    }
+                                    .font(.caption)
+                                    .foregroundColor(.purple)
+                                }
+                            }
+                            
+                            // Average rating display
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(String(format: "%.1f", reviewScheduler.getAverageRatingForProvider(provider.id?.uuidString ?? "")))
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                    
+                                    HStack {
+                                        ForEach(1...5, id: \.self) { star in
+                                            Image(systemName: star <= Int(reviewScheduler.getAverageRatingForProvider(provider.id?.uuidString ?? "")) ? "star.fill" : "star")
+                                                .font(.caption)
+                                                .foregroundColor(star <= Int(reviewScheduler.getAverageRatingForProvider(provider.id?.uuidString ?? "")) ? .yellow : .gray)
+                                        }
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Text("\(providerReviews.count) reviews")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            // Review cards
+                            VStack(spacing: 8) {
+                                ForEach(Array(providerReviews.prefix(3))) { review in
+                                    ReviewCardView(review: review)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(16)
+                        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
+                    }
+                    
                     // Provider's gigs
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Services Offered")
@@ -329,5 +394,50 @@ struct GigPreviewCard: View {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(12)
+    }
+}
+
+struct ReviewCardView: View {
+    let review: AppReview
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Reviewer")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    HStack {
+                        ForEach(1...5, id: \.self) { star in
+                            Image(systemName: star <= review.rating ? "star.fill" : "star")
+                                .font(.caption)
+                                .foregroundColor(star <= review.rating ? .yellow : .gray)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                Text(formatDate(review.timestamp))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            if !review.comment.isEmpty {
+                Text(review.comment)
+                    .font(.body)
+                    .foregroundColor(.primary)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(8)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: date)
     }
 } 

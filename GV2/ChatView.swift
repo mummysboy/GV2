@@ -7,10 +7,12 @@ struct ChatView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var chatService: ChatService
     @StateObject private var moderationService = ModerationService()
+    @StateObject private var conversationMonitor = ConversationMonitor()
     
     @State private var messageText = ""
     @State private var showingModerationAlert = false
     @State private var moderationResult: ModerationResult?
+    @State private var currentGigId: String = ""
     
     init(partner: User) {
         self.partner = partner
@@ -109,12 +111,22 @@ struct ChatView: View {
                 switch result.action {
                 case .allow:
                     // Send the message
-                    chatService.sendMessage(content, to: partner.id?.uuidString ?? "unknown")
+                    chatService.sendMessage(content, to: partner.id?.uuidString ?? "unknown", gigId: currentGigId)
+                    
+                    // Process for service completion detection
+                    if !currentGigId.isEmpty {
+                        conversationMonitor.process(message: content, from: User(), to: partner, gigId: currentGigId)
+                    }
                     
                 case .warn:
                     // Show warning but allow message
                     showingModerationAlert = true
-                    chatService.sendMessage(content, to: partner.id?.uuidString ?? "unknown")
+                    chatService.sendMessage(content, to: partner.id?.uuidString ?? "unknown", gigId: currentGigId)
+                    
+                    // Process for service completion detection
+                    if !currentGigId.isEmpty {
+                        conversationMonitor.process(message: content, from: User(), to: partner, gigId: currentGigId)
+                    }
                     
                 case .block:
                     // Block the message

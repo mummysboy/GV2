@@ -6,9 +6,11 @@ struct InAppCallView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var callService = CallService()
     @StateObject private var moderationService = ModerationService()
+    @StateObject private var conversationMonitor = ConversationMonitor()
     
     @State private var showingModerationAlert = false
     @State private var moderationResult: ModerationResult?
+    @State private var currentGigId: String = ""
     @State private var callTranscript = ""
     
     var body: some View {
@@ -192,6 +194,11 @@ struct InAppCallView: View {
                     break
                 }
             }
+        }
+        
+        // Also process for service completion detection
+        if !currentGigId.isEmpty {
+            conversationMonitor.processCallTranscript(randomPhrase, from: User(), to: provider, gigId: currentGigId)
         }
     }
     

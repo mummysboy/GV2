@@ -62,6 +62,13 @@ class CallService: ObservableObject {
         currentCallId = nil
     }
     
+    // Process call transcript for service completion detection
+    func processCallTranscript(_ transcript: String, from: User, to: User, gigId: String) {
+        // In a real app, this would be called with actual transcript data
+        // For now, this is a placeholder for the conversation monitor integration
+        print("Call transcript processed: \(transcript)")
+    }
+    
     func toggleMute() {
         isMuted.toggle()
         

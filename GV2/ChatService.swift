@@ -59,7 +59,7 @@ class ChatService: ObservableObject {
         }
     }
     
-    func sendMessage(_ content: String, to receiverId: String) {
+    func sendMessage(_ content: String, to receiverId: String, gigId: String? = nil) {
         let message = UserChatMessage(
             id: UUID(),
             senderId: userId,
@@ -74,6 +74,13 @@ class ChatService: ObservableObject {
         
         // In a real app, this would send to a backend service
         // and update the chat thread
+        
+        // Process for service completion detection
+        if let gigId = gigId {
+            // In a real app, you would get the actual User objects from the context
+            // For now, we'll skip the conversation monitoring to avoid Core Data context issues
+            // conversationMonitor.process(message: content, from: sender, to: receiver, gigId: gigId)
+        }
     }
     
     func createOrGetThread(with userId: String) -> ChatThread {
