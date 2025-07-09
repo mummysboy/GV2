@@ -13,6 +13,7 @@ struct SocialActivity: Identifiable {
     let fullReview: String?
     let timestamp: Date
     let gigId: String
+    let reviewId: String? // ID of the specific review for highlighting
     let gigImage: String? // For future use
     let gigPrice: String? // For future use
 }
@@ -24,7 +25,7 @@ struct SocialView: View {
     @State private var showingConnections = false
     @State private var selectedFilter: ActivityFilter = .all
     @State private var selectedActivity: SocialActivity?
-    @State private var showingReviewPreview = false
+    @State private var showingGigDetail = false
     
     enum ActivityFilter: String, CaseIterable {
         case all = "All"
@@ -45,7 +46,7 @@ struct SocialView: View {
                 .padding()
                 
                 // Enhanced Social Activity Feed
-                SocialActivityFeed(filter: selectedFilter, selectedActivity: $selectedActivity, showingReviewPreview: $showingReviewPreview)
+                SocialActivityFeed(filter: selectedFilter, selectedActivity: $selectedActivity, showingGigDetail: $showingGigDetail)
             }
             .navigationTitle("Social")
             .toolbar {
@@ -74,17 +75,27 @@ struct SocialView: View {
             .sheet(isPresented: $showingConnections) {
                 ConnectionsView()
             }
-            .sheet(item: $selectedActivity) { activity in
-                ReviewPreviewModal(activity: activity)
+            .sheet(isPresented: $showingGigDetail) {
+                if let activity = selectedActivity {
+                    // Navigate to gig detail view with highlighted review
+                    GigDetailView(gig: getGig(for: activity.gigId), highlightedReviewId: activity.reviewId)
+                }
             }
         }
+    }
+    
+    // Helper function to get Gig from gigId
+    private func getGig(for gigId: String) -> Gig {
+        let request: NSFetchRequest<Gig> = Gig.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", gigId)
+        return (try? viewContext.fetch(request).first) ?? Gig()
     }
 }
 
 struct SocialActivityFeed: View {
     let filter: SocialView.ActivityFilter
     @Binding var selectedActivity: SocialActivity?
-    @Binding var showingReviewPreview: Bool
+    @Binding var showingGigDetail: Bool
     @State private var activities: [SocialActivity] = []
     
     var body: some View {
@@ -92,7 +103,7 @@ struct SocialActivityFeed: View {
             ForEach(activities) { activity in
                 SocialActivityCard(activity: activity) {
                     selectedActivity = activity
-                    showingReviewPreview = true
+                    showingGigDetail = true
                 }
             }
         }
@@ -118,6 +129,7 @@ struct SocialActivityFeed: View {
                 fullReview: "Amazing service, my dog loved it! Very professional and reliable. The walker was punctual and sent me updates throughout the walk. My dog came back happy and tired. Highly recommend!",
                 timestamp: Date().addingTimeInterval(-3600),
                 gigId: "gig1",
+                reviewId: "review1",
                 gigImage: nil,
                 gigPrice: "$25/hour"
             ),
@@ -132,6 +144,7 @@ struct SocialActivityFeed: View {
                 fullReview: nil,
                 timestamp: Date().addingTimeInterval(-7200),
                 gigId: "gig2",
+                reviewId: nil,
                 gigImage: nil,
                 gigPrice: "$80/visit"
             ),
@@ -146,6 +159,7 @@ struct SocialActivityFeed: View {
                 fullReview: "Great teacher, learned so much in just a few sessions. Very patient and explains things clearly. The lessons are well-structured and I can see my progress. Would definitely recommend!",
                 timestamp: Date().addingTimeInterval(-10800),
                 gigId: "gig3",
+                reviewId: "review3",
                 gigImage: nil,
                 gigPrice: "$60/hour"
             ),
@@ -160,6 +174,7 @@ struct SocialActivityFeed: View {
                 fullReview: "Beautiful photos, captured the moment perfectly. The photographer was creative and made us feel comfortable. The final images exceeded our expectations.",
                 timestamp: Date().addingTimeInterval(-14400),
                 gigId: "gig4",
+                reviewId: "review4",
                 gigImage: nil,
                 gigPrice: "$200/session"
             ),
@@ -174,6 +189,7 @@ struct SocialActivityFeed: View {
                 fullReview: nil,
                 timestamp: Date().addingTimeInterval(-18000),
                 gigId: "gig5",
+                reviewId: "review5",
                 gigImage: nil,
                 gigPrice: "$45/hour"
             )
@@ -275,135 +291,7 @@ struct SocialActivityCard: View {
     }
 }
 
-struct ReviewPreviewModal: View {
-    let activity: SocialActivity
-    @Environment(\.dismiss) private var dismiss
-    @State private var showingGigDetails = false
-    
-    var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Gig Title
-                Text(activity.gigTitle)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
-                
-                // Review by line
-                HStack {
-                    Text("Review by \(activity.friendName)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    if activity.isFriend {
-                        Text("👤 Friend")
-                            .font(.caption)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.green.opacity(0.2))
-                            .foregroundColor(.green)
-                            .clipShape(Capsule())
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.horizontal)
-                
-                // Rating if available
-                if let rating = activity.rating {
-                    HStack {
-                        Text("Rating: \(rating, specifier: "%.1f")★")
-                            .font(.headline)
-                            .foregroundColor(.yellow)
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                }
-                
-                // Full review content
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 12) {
-                        if let fullReview = activity.fullReview {
-                            Text(fullReview)
-                                .font(.body)
-                                .lineSpacing(4)
-                        } else {
-                            Text("No written review provided.")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .italic()
-                        }
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                }
-                
-                Spacer()
-                
-                // Action buttons
-                VStack(spacing: 12) {
-                    Button("View Full Service") {
-                        showingGigDetails = true
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity)
-                    
-                    Button("Close") {
-                        dismiss()
-                    }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
-                }
-                .padding()
-            }
-            .navigationTitle("Review Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $showingGigDetails) {
-            // Navigate to gig detail view
-            GigDetailPreviewView(gigId: activity.gigId, gigTitle: activity.gigTitle)
-        }
-    }
-}
 
-struct GigDetailPreviewView: View {
-    let gigId: String
-    let gigTitle: String
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Gig Details for: \(gigTitle)")
-                    .font(.title2)
-                    .padding()
-                
-                Text("This would show the full gig details view")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle(gigTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
 
 // Extension for time ago display
 extension Date {

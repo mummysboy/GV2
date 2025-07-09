@@ -314,7 +314,7 @@ struct GigCardView: View {
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
         .sheet(isPresented: $showingDetail) {
-            GigDetailView(gig: gig)
+            GigDetailView(gig: gig, highlightedReviewId: nil)
         }
     }
 }
@@ -827,6 +827,7 @@ struct ChatMessageView: View {
 
 struct GigDetailView: View {
     let gig: Gig
+    var highlightedReviewId: String? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var showingChat = false
     @State private var showingCall = false
@@ -834,8 +835,9 @@ struct GigDetailView: View {
     @StateObject private var reviewScheduler: ReviewScheduler
     @StateObject private var conversationMonitor = ConversationMonitor()
     
-    init(gig: Gig) {
+    init(gig: Gig, highlightedReviewId: String? = nil) {
         self.gig = gig
+        self.highlightedReviewId = highlightedReviewId
         let monitor = ConversationMonitor()
         self._reviewScheduler = StateObject(wrappedValue: ReviewScheduler(conversationMonitor: monitor))
     }
@@ -999,45 +1001,65 @@ struct GigDetailView: View {
     }
     
     private var reviewsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Service Reviews")
-                .font(.headline)
+        ScrollViewReader { proxy in
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Service Reviews")
+                    .font(.headline)
 
-            if reviewScheduler.gigReviews.isEmpty {
-                Text("No reviews yet.")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            } else {
-                ForEach(reviewScheduler.gigReviews.prefix(3)) { review in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(review.reviewerName)
-                                .fontWeight(.semibold)
-                            
-                            // Friend badge
-                            if review.isFromFriend {
-                                Text("👤 Friend")
-                                    .font(.caption2)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.green.opacity(0.2))
-                                    .foregroundColor(.green)
-                                    .clipShape(Capsule())
+                if reviewScheduler.gigReviews.isEmpty {
+                    Text("No reviews yet.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(reviewScheduler.gigReviews.prefix(3)) { review in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(review.reviewerName)
+                                    .fontWeight(.semibold)
+                                
+                                // Friend badge
+                                if review.isFromFriend {
+                                    Text("👤 Friend")
+                                        .font(.caption2)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.green.opacity(0.2))
+                                        .foregroundColor(.green)
+                                        .clipShape(Capsule())
+                                }
+                                
+                                Spacer()
+                                Text(String(format: "%.1f ★", review.rating))
+                                    .foregroundColor(.yellow)
                             }
-                            
-                            Spacer()
-                            Text(String(format: "%.1f ★", review.rating))
-                                .foregroundColor(.yellow)
+                            Text(review.comment)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
                         }
-                        Text(review.comment)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                        .padding()
+                        .background(
+                            review.id == highlightedReviewId
+                            ? Color.yellow.opacity(0.2)
+                            : Color.clear
+                        )
+                        .cornerRadius(8)
+                        .id(review.id)
+                        .padding(.bottom, 6)
                     }
-                    .padding(.bottom, 6)
+                }
+            }
+            .padding(.top, 20)
+            .onAppear {
+                // Scroll to highlighted review after a short delay
+                if let highlight = highlightedReviewId {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation(.easeInOut(duration: 0.8)) {
+                            proxy.scrollTo(highlight, anchor: .top)
+                        }
+                    }
                 }
             }
         }
-        .padding(.top, 20)
     }
 }
 
