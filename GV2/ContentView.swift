@@ -782,6 +782,8 @@ struct ChatMessageView: View {
 struct GigDetailView: View {
     let gig: Gig
     @Environment(\.dismiss) private var dismiss
+    @State private var showingChat = false
+    @State private var showingCall = false
     
     var body: some View {
         NavigationView {
@@ -805,47 +807,56 @@ struct GigDetailView: View {
                         }
                     }
                     
-                    // Provider info
-                    HStack {
-                        Circle()
-                            .fill(Color.purple.opacity(0.3))
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Text(String(gig.provider?.name?.prefix(1) ?? "U"))
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.purple)
-                            )
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(gig.provider?.name ?? "Unknown Provider")
-                                .font(.headline)
+                    // Provider info - Clickable
+                    NavigationLink(destination: ProviderProfileView(provider: gig.provider ?? User())) {
+                        HStack {
+                            Circle()
+                                .fill(Color.purple.opacity(0.3))
+                                .frame(width: 50, height: 50)
+                                .overlay(
+                                    Text(String(gig.provider?.name?.prefix(1) ?? "U"))
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.purple)
+                                )
                             
-                            HStack {
-                                Text(gig.location ?? "Location")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(gig.provider?.name ?? "Unknown Provider")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
                                 
-                                if gig.provider?.isVerified == true {
-                                    Image(systemName: "checkmark.seal.fill")
-                                        .foregroundColor(.blue)
+                                HStack {
+                                    Text(gig.location ?? "Location")
                                         .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    
+                                    if gig.provider?.isVerified == true {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .foregroundColor(.blue)
+                                            .font(.caption)
+                                    }
                                 }
                             }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .trailing, spacing: 4) {
+                                Text(String(format: "%.1f", gig.provider?.rating ?? 0.0))
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Text("★")
+                                    .foregroundColor(.yellow)
+                            }
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
                         }
-                        
-                        Spacer()
-                        
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text(String(format: "%.1f", gig.provider?.rating ?? 0.0))
-                                .font(.headline)
-                            Text("★")
-                                .foregroundColor(.yellow)
-                        }
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
                     }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .buttonStyle(PlainButtonStyle())
                     
                     // Description
                     VStack(alignment: .leading, spacing: 8) {
@@ -879,7 +890,7 @@ struct GigDetailView: View {
                     
                     // Action buttons
                     VStack(spacing: 12) {
-                        Button(action: {}) {
+                        Button(action: { showingChat = true }) {
                             HStack {
                                 Image(systemName: "message")
                                 Text("Message Provider")
@@ -892,7 +903,7 @@ struct GigDetailView: View {
                             .cornerRadius(12)
                         }
                         
-                        Button(action: {}) {
+                        Button(action: { showingCall = true }) {
                             HStack {
                                 Image(systemName: "phone")
                                 Text("Call Provider")
@@ -917,6 +928,12 @@ struct GigDetailView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showingChat) {
+            ChatView(partner: gig.provider ?? User())
+        }
+        .fullScreenCover(isPresented: $showingCall) {
+            InAppCallView(provider: gig.provider ?? User())
         }
     }
 }
