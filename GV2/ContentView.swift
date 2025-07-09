@@ -38,12 +38,19 @@ struct ContentView: View {
                         }
                         .tag(2)
                     
+                    NotificationView()
+                        .tabItem {
+                            Image(systemName: "bell.fill")
+                            Text("Notifications")
+                        }
+                        .tag(3)
+                    
                     ProfileView()
                         .tabItem {
                             Image(systemName: "person.fill")
                             Text("Profile")
                         }
-                        .tag(3)
+                        .tag(4)
                 }
                 .accentColor(.purple)
                 .preferredColorScheme(.light)
@@ -381,6 +388,9 @@ struct ProfileView: View {
     private var users: FetchedResults<User>
     
     @State private var showingCreateGig = false
+    @State private var showingProfileManagement = false
+    @State private var showingGigManagement = false
+    @State private var showingAnalytics = false
     
     var currentUser: User? {
         users.first
@@ -473,10 +483,36 @@ struct ProfileView: View {
                             .cornerRadius(12)
                         }
                         
-                        Button(action: {}) {
+                        Button(action: { showingProfileManagement = true }) {
                             HStack {
                                 Image(systemName: "person.circle")
                                 Text("Edit Profile")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.purple)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
+                        Button(action: { showingGigManagement = true }) {
+                            HStack {
+                                Image(systemName: "briefcase")
+                                Text("Manage Gigs")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.purple)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
+                        Button(action: { showingAnalytics = true }) {
+                            HStack {
+                                Image(systemName: "chart.bar")
+                                Text("Analytics")
                             }
                             .font(.headline)
                             .foregroundColor(.purple)
@@ -502,6 +538,15 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingCreateGig) {
             CreateGigView()
+        }
+        .sheet(isPresented: $showingProfileManagement) {
+            UserProfileView()
+        }
+        .sheet(isPresented: $showingGigManagement) {
+            GigManagementView()
+        }
+        .sheet(isPresented: $showingAnalytics) {
+            AnalyticsView()
         }
     }
 }
