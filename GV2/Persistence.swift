@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import CloudKit
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -20,43 +21,63 @@ struct PersistenceController {
         do {
             try viewContext.save()
         } catch {
-            // Replace this implementation with code to handle the error appropriately.
-            // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            // Log error for debugging but don't crash in production
+            print("Preview data creation failed: \(error.localizedDescription)")
         }
         return result
     }()
 
-    let container: NSPersistentContainer
+    let container: NSPersistentCloudKitContainer
 
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "GV2")
+        container = NSPersistentCloudKitContainer(name: "GV2")
+        
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")
+        } else {
+            // Configure CloudKit for production
+            guard let description = container.persistentStoreDescriptions.first else {
+                fatalError("Failed to retrieve a persistent store description.")
+            }
+            
+            // Enable CloudKit sync
+            description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+            description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+            
+            // Configure CloudKit container
+            description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
+                containerIdentifier: "iCloud.com.yourcompany.GV2"
+            )
         }
+        
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                // Production error handling - log and notify user instead of crashing
+                print("Core Data store failed to load: \(error.localizedDescription)")
+                print("Error details: \(error.userInfo)")
+                
+                // Post notification for UI to handle gracefully
+                NotificationCenter.default.post(
+                    name: .coreDataLoadFailed,
+                    object: nil,
+                    userInfo: ["error": error]
+                )
+            } else {
+                print("Core Data store loaded successfully")
             }
         })
-        container.viewContext.automaticallyMergesChangesFromParent = true
         
-        // Create sample data if this is the first launch
-        if !hasSampleData() {
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
+        // Create sample data if this is the first launch and not in memory
+        if !inMemory && !hasSampleData() {
             PersistenceController.createSampleData(in: container.viewContext)
-            try? container.viewContext.save()
+            do {
+                try container.viewContext.save()
+            } catch {
+                print("Failed to save sample data: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -66,7 +87,28 @@ struct PersistenceController {
         return (try? container.viewContext.count(for: request)) ?? 0 > 0
     }
     
+    // MARK: - Error Handling
+    func save() {
+        let context = container.viewContext
+        
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                // Production error handling
+                print("Failed to save context: \(error.localizedDescription)")
+                NotificationCenter.default.post(
+                    name: .coreDataSaveFailed,
+                    object: nil,
+                    userInfo: ["error": error]
+                )
+            }
+        }
+    }
+    
+    // MARK: - Sample Data (Development Only)
     static func createSampleData(in context: NSManagedObjectContext) {
+        #if DEBUG
         // Create sample users
         let users = [
             ("Sarah Chen", "San Francisco, CA", "Professional photographer with 5+ years experience", true, 4.8, 127),
@@ -150,5 +192,12 @@ struct PersistenceController {
             review.gig = context.registeredObjects.compactMap { $0 as? Gig }.randomElement()
             review.reviewer = createdUsers.randomElement()
         }
+        #endif
     }
+}
+
+// MARK: - Notification Names
+extension Notification.Name {
+    static let coreDataLoadFailed = Notification.Name("coreDataLoadFailed")
+    static let coreDataSaveFailed = Notification.Name("coreDataSaveFailed")
 }

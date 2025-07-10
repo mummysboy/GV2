@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="true" userDefinedModelVersionIdentifier="">
     <entity name="Gig" representedClassName="Gig" syncable="YES" codeGenerationType="class">
         <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -63,10 +63,13 @@
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="contactPreferences" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <attribute name="connections" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <relationship name="activities" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FriendActivity" inverseName="user" inverseEntity="FriendActivity"/>
         <relationship name="conversations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="participants" inverseEntity="Conversation"/>
         <relationship name="gigs" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Gig" inverseName="provider" inverseEntity="Gig"/>
+        <relationship name="incomingConnections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserConnection" inverseName="connectedUser" inverseEntity="UserConnection"/>
+        <relationship name="outgoingConnections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserConnection" inverseName="user" inverseEntity="UserConnection"/>
         <relationship name="reviews" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Review" inverseName="reviewer" inverseEntity="Review"/>
-        <relationship name="sentMessages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="sender" inverseEntity="User"/>
+        <relationship name="sentMessages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="sender" inverseEntity="Message"/>
     </entity>
     <entity name="UserConnection" representedClassName="UserConnection" syncable="YES" codeGenerationType="class">
         <attribute name="connectedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

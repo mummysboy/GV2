@@ -112,7 +112,7 @@ struct InAppCallView: View {
                 Text(callModerationAlertMessage(for: result))
             }
         }
-        .onChange(of: callService.callStatus) { status in
+        .onChange(of: callService.callStatus) { _, status in
             if status == .ended {
                 dismiss()
             }

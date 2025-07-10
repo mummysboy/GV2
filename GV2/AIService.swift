@@ -245,4 +245,47 @@ struct AIResponse {
     let message: String
     let suggestions: [String]
     let gigs: [Gig]
+}
+
+// MARK: - Text Enhancement
+extension AIService {
+    static func enhance(text: String, completion: @escaping (String) -> Void) {
+        let prompt = "Rewrite this service description to make it more appealing and professional while maintaining the original meaning and details:\n\n\(text)"
+        
+        // For now, we'll use a simple enhancement algorithm
+        // In a real app, this would call an OpenAI API endpoint
+        let enhanced = enhanceTextLocally(text)
+        
+        // Simulate network delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            completion(enhanced)
+        }
+    }
+    
+    private static func enhanceTextLocally(_ text: String) -> String {
+        var enhanced = text
+        
+        // Basic enhancements
+        enhanced = enhanced.replacingOccurrences(of: "i ", with: "I ")
+        enhanced = enhanced.replacingOccurrences(of: "i'm", with: "I'm")
+        enhanced = enhanced.replacingOccurrences(of: "i'll", with: "I'll")
+        enhanced = enhanced.replacingOccurrences(of: "i've", with: "I've")
+        
+        // Add professional phrases if not present
+        if !enhanced.lowercased().contains("professional") && !enhanced.lowercased().contains("expert") {
+            enhanced = "Professional and experienced service provider. " + enhanced
+        }
+        
+        // Improve sentence structure
+        if !enhanced.hasSuffix(".") && !enhanced.hasSuffix("!") && !enhanced.hasSuffix("?") {
+            enhanced += "."
+        }
+        
+        // Add call to action if not present
+        if !enhanced.lowercased().contains("contact") && !enhanced.lowercased().contains("reach out") {
+            enhanced += " Feel free to reach out for more details!"
+        }
+        
+        return enhanced
+    }
 } 
