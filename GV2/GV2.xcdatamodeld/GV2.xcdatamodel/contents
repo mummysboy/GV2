@@ -66,6 +66,7 @@
         <relationship name="activities" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="FriendActivity" inverseName="user" inverseEntity="FriendActivity"/>
         <relationship name="conversations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="participants" inverseEntity="Conversation"/>
         <relationship name="gigs" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Gig" inverseName="provider" inverseEntity="Gig"/>
+        <relationship name="products" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Product" inverseName="owner" inverseEntity="Product"/>
         <relationship name="incomingConnections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserConnection" inverseName="connectedUser" inverseEntity="UserConnection"/>
         <relationship name="outgoingConnections" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="UserConnection" inverseName="user" inverseEntity="UserConnection"/>
         <relationship name="reviews" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Review" inverseName="reviewer" inverseEntity="Review"/>
@@ -87,6 +88,18 @@
         <attribute name="isRead" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="User" inverseName="activities" inverseEntity="User"/>
     </entity>
+    <entity name="Product" representedClassName="Product" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="productDescription" optional="YES" attributeType="String"/>
+        <attribute name="price" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="images" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="ownerId" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <relationship name="owner" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="products" inverseEntity="User"/>
+    </entity>
     <elements>
         <element name="Gig" positionX="-63" positionY="-18" width="128" height="44"/>
         <element name="Message" positionX="-63" positionY="36" width="128" height="44"/>
@@ -95,5 +108,6 @@
         <element name="User" positionX="-63" positionY="198" width="128" height="44"/>
         <element name="UserConnection" positionX="-63" positionY="252" width="128" height="44"/>
         <element name="FriendActivity" positionX="-63" positionY="306" width="128" height="44"/>
+        <element name="Product" positionX="-63" positionY="360" width="128" height="44"/>
     </elements>
 </model>

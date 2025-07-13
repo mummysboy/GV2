@@ -14,6 +14,7 @@ struct UserProfileView: View {
     @State private var showingVerificationSheet = false
     @State private var showingSocialLinksSheet = false
     @State private var showingContactPreferencesSheet = false
+    @State private var showingManageProductsSheet = false
     @State private var selectedImage: PhotosPickerItem?
     @State private var profileImage: Image?
     
@@ -176,6 +177,13 @@ struct UserProfileView: View {
                         )
                         
                         ProfileOptionButton(
+                            title: "Manage Products",
+                            subtitle: "View, edit, sell your products",
+                            icon: "bag.circle",
+                            action: { showingManageProductsSheet = true }
+                        )
+                        
+                        ProfileOptionButton(
                             title: "Analytics & Insights",
                             subtitle: "Views, bookings, performance",
                             icon: "chart.bar.circle",
@@ -214,6 +222,9 @@ struct UserProfileView: View {
         }
         .sheet(isPresented: $showingContactPreferencesSheet) {
             ContactPreferencesView()
+        }
+        .sheet(isPresented: $showingManageProductsSheet) {
+            ManageProductsView()
         }
     }
 }

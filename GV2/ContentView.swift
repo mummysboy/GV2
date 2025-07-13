@@ -33,10 +33,10 @@ struct ContentView: View {
                         }
                         .tag(0)
                     
-                    SearchView()
+                    ProductMarketplaceView()
                         .tabItem {
-                            Image(systemName: "magnifyingglass")
-                            Text("Search")
+                            Image(systemName: "bag.fill")
+                            Text("Shop")
                         }
                         .tag(1)
                     
@@ -430,6 +430,7 @@ struct ProfileView: View {
     @State private var showingProfileManagement = false
     @State private var showingGigManagement = false
     @State private var showingAnalytics = false
+    @State private var showingProductManagement = false
     
     var currentUser: User? {
         users.first
@@ -548,6 +549,19 @@ struct ProfileView: View {
                             .cornerRadius(12)
                         }
                         
+                        Button(action: { showingProductManagement = true }) {
+                            HStack {
+                                Image(systemName: "bag")
+                                Text("Manage Products")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.purple)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
                         Button(action: { showingAnalytics = true }) {
                             HStack {
                                 Image(systemName: "chart.bar")
@@ -586,6 +600,9 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingAnalytics) {
             AnalyticsView()
+        }
+        .sheet(isPresented: $showingProductManagement) {
+            ManageProductsView()
         }
     }
 }
