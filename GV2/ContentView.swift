@@ -28,8 +28,8 @@ struct ContentView: View {
                 TabView(selection: $selectedTab) {
                     HomeFeedView()
                         .tabItem {
-                            Image(systemName: "wrench.and.screwdriver.fill")
-                            Text("Gigs")
+                            Image(systemName: "house.fill")
+                            Text("Home")
                         }
                         .tag(0)
                     
@@ -43,7 +43,7 @@ struct ContentView: View {
                     MessagesView()
                         .tabItem {
                             Image(systemName: "message.fill")
-                            Text("Chat")
+                            Text("Messages")
                         }
                         .tag(2)
                     
@@ -64,11 +64,6 @@ struct ContentView: View {
                 .accentColor(.appVerification)
                 .preferredColorScheme(.light)
                 .background(Color.appBackground)
-                .onAppear {
-                    // Reduce tab bar item spacing
-                    UITabBar.appearance().itemSpacing = -10
-                    UITabBar.appearance().itemPositioning = .centered
-                }
             } else {
                 OnboardingView()
             }
@@ -128,6 +123,27 @@ struct HomeFeedView: View {
     @State private var showingAIChat = false
     @State private var showingCreateGig = false
     @State private var searchText = ""
+    @State private var selectedCategory = "All"
+    
+    let categories = ["All", "🎨 Creative", "🏠 Home", "🐕 Pet Care", "📚 Tutoring", "💪 Fitness", "🍳 Food", "💄 Beauty", "Tech"]
+    
+    // Helper to extract plain category name (e.g., "Creative" from "🎨 Creative")
+    private func plainCategoryName(_ category: String) -> String {
+        let comps = category.components(separatedBy: " ")
+        return comps.count > 1 ? comps.dropFirst().joined(separator: " ") : category
+    }
+    
+    var filteredGigs: [Gig] {
+        let allGigs = Array(gigs)
+        let filteredByCategory = selectedCategory == "All" ? allGigs : allGigs.filter { gig in
+            (gig.category ?? "") == plainCategoryName(selectedCategory)
+        }
+        if searchText.isEmpty {
+            return filteredByCategory
+        } else {
+            return filteredByCategory.filter { ($0.title ?? "").localizedCaseInsensitiveContains(searchText) || ($0.gigDescription ?? "").localizedCaseInsensitiveContains(searchText) }
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -153,23 +169,24 @@ struct HomeFeedView: View {
                 }
                 .padding(.top)
                 
-                // Trending Categories
+                // Category Filters
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        ForEach(["🎨 Creative", "🏠 Home", "🐕 Pet Care", "📚 Tutoring", "💪 Fitness", "🍳 Food"], id: \.self) { category in
-                            Button(action: {}) {
+                        ForEach(categories, id: \.self) { category in
+                            Button(action: { selectedCategory = category }) {
                                 Text(category)
                                     .font(.caption)
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 20)
                                     .padding(.vertical, 10)
-                                    .background(Color.appSurfaceSecondary)
-                                    .foregroundColor(.appText)
+                                    .background(selectedCategory == category ? Color.appLavender : Color.appSurfaceSecondary)
+                                    .foregroundColor(selectedCategory == category ? Color.appLavenderDark : .appText)
                                     .cornerRadius(20)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 20)
-                                            .stroke(Color.appBorder, lineWidth: 1)
+                                            .stroke(selectedCategory == category ? Color.clear : Color.appBorder, lineWidth: 1)
                                     )
+                                    .shadow(color: selectedCategory == category ? .clear : .clear, radius: 0, x: 0, y: 0)
                             }
                         }
                     }
@@ -180,7 +197,7 @@ struct HomeFeedView: View {
                 // Gig Feed
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(gigs) { gig in
+                        ForEach(filteredGigs) { gig in
                             GigCardView(gig: gig)
                         }
                     }
@@ -386,14 +403,14 @@ struct SearchView: View {
                                     .fontWeight(.medium)
                                     .padding(.horizontal, 20)
                                     .padding(.vertical, 10)
-                                    .background(selectedCategory == category ? Color.appAccent : Color.appSurfaceSecondary)
-                                    .foregroundColor(selectedCategory == category ? .white : .appText)
+                                    .background(selectedCategory == category ? Color.appLavender : Color.appSurfaceSecondary)
+                                    .foregroundColor(selectedCategory == category ? Color.appLavenderDark : .appText)
                                     .cornerRadius(20)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 20)
                                             .stroke(selectedCategory == category ? Color.clear : Color.appBorder, lineWidth: 1)
                                     )
-                                    .shadow(color: selectedCategory == category ? .appAccent.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
+                                    .shadow(color: selectedCategory == category ? .appLavender.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                             }
                         }
                     }
