@@ -63,6 +63,7 @@ struct SocialView: View {
                         }
                     } label: {
                         Image(systemName: "person.badge.plus")
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                     }
                 }
             }

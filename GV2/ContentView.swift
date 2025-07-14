@@ -500,15 +500,19 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
                     // Profile header
                     VStack(spacing: 16) {
-                        Circle()
-                            .fill(Color.appAccentLight)
-                            .frame(width: 100, height: 100)
-                            .overlay(
-                                Text(String(currentUser?.name?.prefix(1) ?? "U"))
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.appAccent)
-                            )
+                        if let user = currentUser {
+                            ProfilePictureView(name: user.name ?? "User", size: 100, showBorder: false)
+                        } else {
+                            Circle()
+                                .fill(Color.appAccentLight)
+                                .frame(width: 100, height: 100)
+                                .overlay(
+                                    Text("U")
+                                        .font(.largeTitle)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.appAccent)
+                                )
+                        }
                         
                         VStack(spacing: 4) {
                             Text(currentUser?.name ?? "Your Name")
@@ -574,10 +578,10 @@ struct ProfileView: View {
                                 Text("Create New Gig")
                             }
                             .font(.headline)
-                            .foregroundColor(.appWhite)
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.appAccent)
+                            .background(Color(hex: "#EBEBF0"))
                             .cornerRadius(12)
                         }
                         
@@ -587,10 +591,10 @@ struct ProfileView: View {
                                 Text("Edit Profile")
                             }
                             .font(.headline)
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.appAccentLight)
+                            .background(Color(hex: "#EBEBF0"))
                             .cornerRadius(12)
                         }
                         
@@ -600,10 +604,10 @@ struct ProfileView: View {
                                 Text("Manage Gigs")
                             }
                             .font(.headline)
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.appAccentLight)
+                            .background(Color(hex: "#EBEBF0"))
                             .cornerRadius(12)
                         }
                         
@@ -613,10 +617,10 @@ struct ProfileView: View {
                                 Text("Manage Products")
                             }
                             .font(.headline)
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.appAccentLight)
+                            .background(Color(hex: "#EBEBF0"))
                             .cornerRadius(12)
                         }
                         
@@ -626,10 +630,10 @@ struct ProfileView: View {
                                 Text("Analytics")
                             }
                             .font(.headline)
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.appAccentLight)
+                            .background(Color(hex: "#EBEBF0"))
                             .cornerRadius(12)
                         }
                     }
@@ -642,7 +646,7 @@ struct ProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {}) {
                         Image(systemName: "gearshape")
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(Color(hex: "#3A3A3C"))
                     }
                 }
             }
