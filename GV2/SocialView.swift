@@ -106,9 +106,21 @@ struct SocialActivityFeed: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var activities: [SocialActivity] = []
     
+    // Computed property to filter activities based on the selected filter
+    var filteredActivities: [SocialActivity] {
+        switch filter {
+        case .friends:
+            return activities.filter { $0.isFriend }
+        case .recent:
+            return activities.filter { $0.timestamp > Date().addingTimeInterval(-86400) }
+        case .all:
+            return activities
+        }
+    }
+    
     var body: some View {
         List {
-            ForEach(activities) { activity in
+            ForEach(filteredActivities) { activity in
                 SocialActivityCard(activity: activity) {
                     selectedActivity = activity
                     showingGigDetail = true
@@ -130,16 +142,24 @@ struct SocialActivityFeed: View {
         if !gigs.isEmpty {
             // Use up to 5 real gigs for the mock feed
             for (i, gig) in gigs.prefix(5).enumerated() {
+                let friendNames = ["Jake", "Emily", "Michael", "Sarah", "Alex"]
+                let reviewSnippets = [
+                    "Jake was super friendly and took great care of my dog! Highly recommend.",
+                    "Emily's yoga class was relaxing and energizing. Will book again!",
+                    "Michael's cleaning service left my house spotless. Very professional.",
+                    "Sarah fixed my leaky faucet in no time. Great handyman!",
+                    "Alex did an amazing job with my makeup for the event. Loved the look!"
+                ]
                 activities.append(
                     SocialActivity(
                         id: "mock-\(i)",
-                        friendName: ["Jake", "Emily", "Michael", "Sarah", "Alex"][i % 5],
+                        friendName: friendNames[i % 5],
                         isFriend: i % 2 == 0,
                         action: i % 2 == 0 ? "reviewed" : "used",
                         gigTitle: gig.title ?? "Untitled Gig",
                         rating: i % 2 == 0 ? Double(4 + i % 2) : nil,
-                        reviewSnippet: i % 2 == 0 ? "Sample review for \(gig.title ?? "Gig")" : nil,
-                        fullReview: i % 2 == 0 ? "This is a sample full review for \(gig.title ?? "Gig")." : nil,
+                        reviewSnippet: i % 2 == 0 ? reviewSnippets[i % 5] : nil,
+                        fullReview: i % 2 == 0 ? reviewSnippets[i % 5] : nil,
                         timestamp: Date().addingTimeInterval(Double(-3600 * (i + 1))),
                         gigId: gig.id?.uuidString ?? "",
                         reviewId: nil, // You can link to a real review if desired
@@ -148,16 +168,6 @@ struct SocialActivityFeed: View {
                     )
                 )
             }
-        }
-        
-        // Apply filter
-        switch filter {
-        case .friends:
-            activities = activities.filter { $0.isFriend }
-        case .recent:
-            activities = activities.filter { $0.timestamp > Date().addingTimeInterval(-86400) } // Last 24 hours
-        case .all:
-            break
         }
     }
 }
