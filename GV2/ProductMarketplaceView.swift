@@ -24,7 +24,7 @@ struct ProductMarketplaceView: View {
                     Button(action: { showingAIChat = true }) {
                         HStack {
                             Image(systemName: "sparkles")
-                                .foregroundColor(.appAccent)
+                                .foregroundColor(.appLavenderDark)
                             Text("Ask AI to find products...")
                                 .foregroundColor(.appTextSecondary)
                             Spacer()
@@ -53,14 +53,14 @@ struct ProductMarketplaceView: View {
                                         .fontWeight(.medium)
                                         .padding(.horizontal, 20)
                                         .padding(.vertical, 10)
-                                        .background(selectedCategory == category ? Color.appAccent : Color.appSurfaceSecondary)
-                                        .foregroundColor(selectedCategory == category ? .white : .appText)
+                                        .background(selectedCategory == category ? Color.appLavender : Color.appSurfaceSecondary)
+                                        .foregroundColor(selectedCategory == category ? Color.appLavenderDark : .appText)
                                         .cornerRadius(20)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 20)
                                                 .stroke(selectedCategory == category ? Color.clear : Color.appBorder, lineWidth: 1)
                                         )
-                                        .shadow(color: selectedCategory == category ? .appAccent.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
+                                        .shadow(color: selectedCategory == category ? Color.appLavender.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                                 }
                             }
                         }
@@ -82,7 +82,7 @@ struct ProductMarketplaceView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationTitle("Shop")
+            .navigationTitle("Find products")
             .sheet(isPresented: $showingAIChat) {
                 ProductAIChatView()
             }
@@ -213,35 +213,46 @@ struct ProductCard: View {
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 8) {
-                // Product image using new ProductImageView
+                // Product image with fixed aspect ratio, rounded corners, fills top
                 ProductImageView(
                     product: product,
-                    size: CGSize(width: 200, height: 120),
-                    cornerRadius: 12
+                    size: CGSize(width: UIScreen.main.bounds.width / 2 - 32, height: (UIScreen.main.bounds.width / 2 - 32) * 9 / 16),
+                    cornerRadius: 10
                 )
+                .aspectRatio(16/9, contentMode: .fill)
+                .frame(maxWidth: .infinity)
+                .clipped()
+                .cornerRadius(10)
+                .padding(.bottom, 8)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(product.name ?? "Unknown Product")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .lineLimit(2)
-                        .foregroundColor(.primary)
-                    
-                    Text(product.productDescription ?? "")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                    
-                    Text("$\(String(format: "%.2f", product.price))")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                                                        .foregroundColor(.appAccent)
-                }
+                // Product name
+                Text(product.name ?? "Unknown Product")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                    .foregroundColor(.primary)
+                
+                // Description
+                Text(product.productDescription ?? "")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                
+                Spacer()
+                
+                // Price at the bottom
+                Text("$\(String(format: "%.2f", product.price))")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .padding(.top, 4)
             }
             .padding(12)
+            .frame(maxWidth: .infinity, minHeight: 220, maxHeight: 260, alignment: .top)
             .background(Color(.systemBackground))
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }
