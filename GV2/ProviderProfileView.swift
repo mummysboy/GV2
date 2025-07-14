@@ -28,13 +28,13 @@ struct ProviderProfileView: View {
                         // Profile image and basic info
                         HStack(spacing: 16) {
                             Circle()
-                                .fill(Color.purple.opacity(0.3))
+                                .fill(Color.appAccentLight)
                                 .frame(width: 80, height: 80)
                                 .overlay(
                                     Text(String(provider.name?.prefix(1) ?? "U"))
                                         .font(.title)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                 )
                             
                             VStack(alignment: .leading, spacing: 8) {
@@ -45,7 +45,7 @@ struct ProviderProfileView: View {
                                     
                                     if provider.isVerified == true {
                                         Image(systemName: "checkmark.seal.fill")
-                                            .foregroundColor(.blue)
+                                            .foregroundColor(.appVerification)
                                             .font(.title3)
                                     }
                                 }
@@ -95,10 +95,10 @@ struct ProviderProfileView: View {
                                     Text("Message")
                                 }
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(.appWhite)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color.purple)
+                                .background(Color.appAccent)
                                 .cornerRadius(12)
                             }
                             
@@ -108,10 +108,10 @@ struct ProviderProfileView: View {
                                     Text("Call")
                                 }
                                 .font(.headline)
-                                .foregroundColor(.purple)
+                                .foregroundColor(.appAccent)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color.purple.opacity(0.1))
+                                .background(Color.appAccentLight)
                                 .cornerRadius(12)
                             }
                         }
@@ -147,13 +147,13 @@ struct ProviderProfileView: View {
                                 ForEach(contactPreferences, id: \.self) { preference in
                                     HStack {
                                         Image(systemName: preferenceIcon(for: preference))
-                                            .foregroundColor(.purple)
+                                            .foregroundColor(.appAccent)
                                         Text(preference)
                                             .font(.body)
                                     }
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    .background(Color.purple.opacity(0.1))
+                                    .background(Color.appAccentLight)
                                     .cornerRadius(8)
                                 }
                             }
@@ -176,7 +176,7 @@ struct ProviderProfileView: View {
                                     if let link = socialLinks[platform] {
                                         HStack {
                                             Image(systemName: socialIcon(for: platform))
-                                                .foregroundColor(.purple)
+                                                .foregroundColor(.appAccent)
                                                 .frame(width: 20)
                                             
                                             Text(platform.capitalized)
@@ -189,11 +189,11 @@ struct ProviderProfileView: View {
                                                 print("Opening \(link)")
                                             }
                                             .font(.caption)
-                                            .foregroundColor(.purple)
+                                            .foregroundColor(.appAccent)
                                         }
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 8)
-                                        .background(Color(.systemGray6))
+                                        .background(Color.appGrayLight)
                                         .cornerRadius(8)
                                     }
                                 }
@@ -294,14 +294,14 @@ struct ProviderProfileView: View {
                                     .font(.caption2)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color.green.opacity(0.2))
-                                    .foregroundColor(.green)
+                                    .background(Color.appAccentLight)
+                                    .foregroundColor(.appAccent)
                                     .clipShape(Capsule())
                             }
                             
                             Spacer()
                             Text(String(format: "%.1f ★", review.rating))
-                                .foregroundColor(.yellow)
+                                .foregroundColor(.appAccent)
                         }
                         Text(review.comment)
                             .font(.subheadline)
@@ -353,12 +353,12 @@ struct GigPreviewCard: View {
     var body: some View {
         HStack(spacing: 12) {
             Circle()
-                .fill(Color.purple.opacity(0.3))
+                .fill(Color.appAccentLight)
                 .frame(width: 40, height: 40)
                 .overlay(
                     Text(String(gig.category?.prefix(1) ?? "G"))
                         .font(.headline)
-                        .foregroundColor(.purple)
+                        .foregroundColor(.appAccent)
                 )
             
             VStack(alignment: .leading, spacing: 4) {
@@ -377,7 +377,7 @@ struct GigPreviewCard: View {
                 Text("$\(String(format: "%.0f", gig.price))")
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundColor(.purple)
+                    .foregroundColor(.appAccent)
                 
                 Text(gig.priceType ?? "")
                     .font(.caption)
@@ -385,7 +385,7 @@ struct GigPreviewCard: View {
             }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.appGrayLight)
         .cornerRadius(12)
     }
 }
@@ -405,7 +405,7 @@ struct ReviewCardView: View {
                         ForEach(1...5, id: \.self) { star in
                             Image(systemName: star <= review.rating ? "star.fill" : "star")
                                 .font(.caption)
-                                .foregroundColor(star <= review.rating ? .yellow : .gray)
+                                .foregroundColor(star <= review.rating ? .appAccent : .appGrayLight)
                         }
                     }
                 }
@@ -424,7 +424,7 @@ struct ReviewCardView: View {
             }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.appGrayLight)
         .cornerRadius(8)
     }
     

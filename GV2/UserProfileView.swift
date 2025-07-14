@@ -45,14 +45,15 @@ struct UserProfileView: View {
                                     .clipShape(Circle())
                             } else {
                                 Circle()
-                                    .fill(Color.purple.opacity(0.3))
+                                    .fill(Color.appAccent)
                                     .frame(width: 120, height: 120)
                                     .overlay(
                                         Text(String(currentUser?.name?.prefix(1) ?? "U"))
                                             .font(.largeTitle)
                                             .fontWeight(.bold)
-                                            .foregroundColor(.purple)
+                                            .foregroundColor(.white)
                                     )
+                                    .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
                             }
                             
                             // Edit button overlay
@@ -63,8 +64,8 @@ struct UserProfileView: View {
                                     PhotosPicker(selection: $selectedImage, matching: .images) {
                                         Image(systemName: "camera.circle.fill")
                                             .font(.title)
-                                            .foregroundColor(.purple)
-                                            .background(Color.white)
+                                            .foregroundColor(.appAccent)
+                                            .background(Color.appWhite)
                                             .clipShape(Circle())
                                     }
                                 }
@@ -76,30 +77,40 @@ struct UserProfileView: View {
                             Text(currentUser?.name ?? "Your Name")
                                 .font(.title2)
                                 .fontWeight(.semibold)
+                                .foregroundColor(.appText)
                             
                             Text(currentUser?.location ?? "Location")
                                 .font(.body)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appTextSecondary)
                         }
                         
                         // Verification Status
                         if currentUser?.isVerified == true {
                             HStack {
                                 Image(systemName: "checkmark.seal.fill")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.appVerification)
                                 Text("Verified Provider")
                                     .font(.caption)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.appVerification)
                             }
                         } else {
                             Button(action: { showingVerificationSheet = true }) {
                                 HStack {
                                     Image(systemName: "checkmark.seal")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.appTextSecondary)
                                     Text("Get Verified")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appTextSecondary)
                                 }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(Color.appSurfaceSecondary)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.appBorder, lineWidth: 1)
+                                )
                             }
                         }
                     }
@@ -111,32 +122,42 @@ struct UserProfileView: View {
                             Text("\(currentUser?.totalReviews ?? 0)")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundColor(.appText)
                             Text("Reviews")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .fontWeight(.medium)
+                                .foregroundColor(.appTextSecondary)
                         }
                         
                         VStack {
                             Text(String(format: "%.1f", currentUser?.rating ?? 0.0))
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundColor(.appText)
                             Text("Rating")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .fontWeight(.medium)
+                                .foregroundColor(.appTextSecondary)
                         }
                         
                         VStack {
                             Text("\(currentUser?.gigs?.count ?? 0)")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundColor(.appText)
                             Text("Gigs")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .fontWeight(.medium)
+                                .foregroundColor(.appTextSecondary)
                         }
                     }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .padding(24)
+                    .background(Color.appSurfaceSecondary)
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.appBorder, lineWidth: 1)
+                    )
                     .padding(.horizontal)
                     
                     // Profile Management Options
@@ -240,29 +261,30 @@ struct ProfileOptionButton: View {
             HStack {
                 Image(systemName: icon)
                     .font(.title2)
-                    .foregroundColor(.purple)
+                    .foregroundColor(.appAccent)
                     .frame(width: 30)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.headline)
-                        .foregroundColor(.primary)
+                        .fontWeight(.medium)
+                        .foregroundColor(.appText)
                     
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.appTextSecondary)
             }
-            .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+            .padding(20)
+            .background(Color.appSurface)
+            .cornerRadius(16)
+            .shadow(color: .appShadow, radius: 8, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -283,16 +305,18 @@ struct VerificationView: View {
                     // Header
                     VStack(spacing: 12) {
                         Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 48))
-                            .foregroundColor(.blue)
+                            .font(.system(size: 56))
+                            .foregroundColor(.appVerification)
+                            .shadow(color: .appVerification.opacity(0.3), radius: 8, x: 0, y: 4)
                         
                         Text("Get Verified")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundColor(.appText)
                         
                         Text("Verification helps build trust with potential clients and increases your visibility in search results.")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.appTextSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding()
@@ -301,6 +325,8 @@ struct VerificationView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Document Type")
                             .font(.headline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.appText)
                         
                         Picker("Document Type", selection: $selectedDocumentType) {
                             ForEach(documentTypes, id: \.self) { type in
@@ -308,9 +334,14 @@ struct VerificationView: View {
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
-                        .padding()
-                        .background(Color(.systemGray6))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.appSurfaceSecondary)
                         .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.appBorder, lineWidth: 1)
+                        )
                     }
                     .padding(.horizontal)
                     
@@ -318,6 +349,8 @@ struct VerificationView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Upload Document")
                             .font(.headline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.appText)
                         
                         Button(action: { showingDocumentPicker = true }) {
                             VStack(spacing: 12) {
@@ -326,21 +359,26 @@ struct VerificationView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(height: 200)
-                                        .cornerRadius(12)
+                                        .cornerRadius(16)
                                 } else {
                                     Image(systemName: "doc.badge.plus")
                                         .font(.system(size: 48))
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                     
                                     Text("Tap to upload document")
                                         .font(.body)
-                                        .foregroundColor(.purple)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appAccent)
                                 }
                             }
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.purple.opacity(0.1))
-                            .cornerRadius(12)
+                            .padding(24)
+                            .background(Color.appSurfaceSecondary)
+                            .cornerRadius(16)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.appBorder, lineWidth: 1)
+                            )
                         }
                     }
                     .padding(.horizontal)
@@ -352,11 +390,13 @@ struct VerificationView: View {
                     }) {
                         Text("Submit for Verification")
                             .font(.headline)
+                            .fontWeight(.semibold)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.purple)
-                            .cornerRadius(12)
+                            .padding(.vertical, 16)
+                            .background(Color.appAccent)
+                            .cornerRadius(16)
+                            .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
                     .padding(.horizontal)
                     .disabled(documentImage == nil)
@@ -391,7 +431,7 @@ struct SocialLinksView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "link.circle.fill")
                             .font(.system(size: 48))
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                         
                         Text("Social Media Links")
                             .font(.title2)
@@ -453,7 +493,7 @@ struct SocialLinksView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple)
+                            .background(Color.appAccent)
                             .cornerRadius(12)
                     }
                     .padding(.horizontal)
@@ -485,14 +525,14 @@ struct SocialLinkField: View {
             
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(.purple)
+                    .foregroundColor(.appAccent)
                     .frame(width: 20)
                 
                 TextField(placeholder, text: $text)
                     .textFieldStyle(PlainTextFieldStyle())
             }
             .padding()
-            .background(Color(.systemGray6))
+            .background(Color.appGrayLight)
             .cornerRadius(12)
         }
     }

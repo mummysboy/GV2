@@ -25,6 +25,8 @@ struct GV2App: App {
                 .environmentObject(errorHandler)
                 .environmentObject(analytics)
                 .errorAlert(errorHandler: errorHandler)
+                .preferredColorScheme(.light)
+                .accentColor(.appVerification)
                 .onAppear {
                     setupApp()
                 }

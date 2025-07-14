@@ -62,12 +62,12 @@ struct OnboardingView: View {
                     HStack(spacing: 8) {
                         ForEach(0..<pages.count, id: \.self) { index in
                             Circle()
-                                .fill(index == currentPage ? Color.purple : Color.gray.opacity(0.3))
-                                .frame(width: 8, height: 8)
+                                .fill(index == currentPage ? Color.appAccent : Color.appBorder)
+                                .frame(width: 10, height: 10)
                                 .animation(.easeInOut, value: currentPage)
                         }
                     }
-                    .padding(.bottom, 30)
+                    .padding(.bottom, 40)
                     
                     // Navigation buttons
                     HStack {
@@ -77,7 +77,7 @@ struct OnboardingView: View {
                                     currentPage -= 1
                                 }
                             }
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                         }
                         
                         Spacer()
@@ -92,11 +92,14 @@ struct OnboardingView: View {
                                 }
                             }
                         }
+                        .font(.headline)
+                        .fontWeight(.semibold)
                         .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(Color.purple)
-                        .cornerRadius(8)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 16)
+                        .background(Color.appAccent)
+                        .cornerRadius(16)
+                        .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 30)
@@ -152,25 +155,28 @@ struct OnboardingPageView: View {
             
             // Icon
             Image(systemName: page.image)
-                .font(.system(size: 80))
-                .foregroundColor(.purple)
-                .padding(.bottom, 20)
+                .font(.system(size: 88))
+                .foregroundColor(.appAccent)
+                .padding(.bottom, 24)
+                .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
             
             // Content
             VStack(spacing: 16) {
                 Text(page.title)
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .foregroundColor(.appText)
                     .multilineTextAlignment(.center)
                 
                 Text(page.subtitle)
                     .font(.title2)
-                    .foregroundColor(.purple)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.appAccent)
                     .multilineTextAlignment(.center)
                 
                 Text(page.description)
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.appTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }
@@ -194,16 +200,18 @@ struct ProfileSetupView: View {
                 // Header
                 VStack(spacing: 16) {
                     Image(systemName: "person.crop.circle.badge.plus")
-                        .font(.system(size: 60))
-                        .foregroundColor(.purple)
+                        .font(.system(size: 64))
+                        .foregroundColor(.appAccent)
+                        .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
                     
                     Text("Set Up Your Profile")
                         .font(.largeTitle)
                         .fontWeight(.bold)
+                        .foregroundColor(.appText)
                     
                     Text("Tell us a bit about yourself")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                 }
                 .padding(.top, 40)
                 
@@ -213,30 +221,33 @@ struct ProfileSetupView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Name")
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .fontWeight(.medium)
+                            .foregroundColor(.appText)
                         
                         TextField("Your name", text: $userName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .hingeInputField()
                     }
                     
                     // Location
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Location")
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .fontWeight(.medium)
+                            .foregroundColor(.appText)
                         
                         TextField("City, State", text: $userLocation)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .hingeInputField()
                     }
                     
                     // Bio
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Bio")
                             .font(.headline)
-                            .foregroundColor(.primary)
+                            .fontWeight(.medium)
+                            .foregroundColor(.appText)
                         
                         TextField("Tell us about yourself...", text: $userBio, axis: .vertical)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .hingeInputField()
                             .lineLimit(3...6)
                     }
                     
@@ -246,21 +257,26 @@ struct ProfileSetupView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("I want to offer services")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.appText)
                                 
                                 Text("Create gigs and earn money")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.appTextSecondary)
                             }
                             
                             Spacer()
                             
                             Toggle("", isOn: $isProvider)
-                                .toggleStyle(SwitchToggleStyle(tint: .purple))
+                                .toggleStyle(SwitchToggleStyle(tint: .appAccent))
                         }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
+                        .padding(20)
+                        .background(Color.appSurfaceSecondary)
+                        .cornerRadius(16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.appBorder, lineWidth: 1)
+                        )
                     }
                 }
                 .padding(.horizontal, 24)
@@ -269,11 +285,13 @@ struct ProfileSetupView: View {
                 Button(action: onComplete) {
                     Text("Complete Setup")
                         .font(.headline)
+                        .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.purple)
-                        .cornerRadius(12)
+                        .padding(.vertical, 16)
+                        .background(Color.appAccent)
+                        .cornerRadius(16)
+                        .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)

@@ -53,8 +53,8 @@ struct GigManagementView: View {
                                     .font(.caption)
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 8)
-                                    .background(selectedFilter == filter ? Color.purple : Color.purple.opacity(0.1))
-                                    .foregroundColor(selectedFilter == filter ? .white : .purple)
+                                    .background(selectedFilter == filter ? Color.appAccent : Color.appAccentLight)
+                                    .foregroundColor(selectedFilter == filter ? .appWhite : .appAccent)
                                     .cornerRadius(20)
                             }
                         }
@@ -86,7 +86,7 @@ struct GigManagementView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 24)
                                 .padding(.vertical, 12)
-                                .background(Color.purple)
+                                .background(Color.appAccent)
                                 .cornerRadius(12)
                         }
                     }
@@ -126,7 +126,7 @@ struct GigManagementView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingCreateGig = true }) {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                             .font(.title2)
                     }
                 }
@@ -223,7 +223,7 @@ struct GigManagementCard: View {
                     Text("$\(String(format: "%.0f", gig.price))")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(.purple)
+                        .foregroundColor(.appAccent)
                     
                     Text(gig.priceType ?? "per service")
                         .font(.caption)
@@ -373,7 +373,7 @@ struct GigEditView: View {
                             }
                             .pickerStyle(MenuPickerStyle())
                             .padding()
-                            .background(Color(.systemGray6))
+                            .background(Color.appGrayLight)
                             .cornerRadius(12)
                         }
                         
@@ -399,7 +399,7 @@ struct GigEditView: View {
                                 }
                                 .pickerStyle(MenuPickerStyle())
                                 .padding()
-                                .background(Color(.systemGray6))
+                                .background(Color.appGrayLight)
                                 .cornerRadius(12)
                             }
                         }
@@ -431,7 +431,7 @@ struct GigEditView: View {
                                     .labelsHidden()
                             }
                             .padding()
-                            .background(Color(.systemGray6))
+                            .background(Color.appGrayLight)
                             .cornerRadius(12)
                         }
                     }
@@ -444,7 +444,7 @@ struct GigEditView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple)
+                            .background(Color.appAccent)
                             .cornerRadius(12)
                     }
                     .padding(.horizontal)
@@ -507,7 +507,7 @@ struct GigEditField: View {
                 TextEditor(text: $text)
                     .frame(minHeight: 100)
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.appGrayLight)
                     .cornerRadius(12)
             } else {
                 TextField(placeholder, text: $text)
@@ -570,12 +570,12 @@ struct GigPromoteView: View {
                         
                         HStack {
                             Circle()
-                                .fill(Color.purple.opacity(0.3))
+                                .fill(Color.appAccentLight)
                                 .frame(width: 50, height: 50)
                                 .overlay(
                                     Text(String(gig.provider?.name?.prefix(1) ?? "U"))
                                         .font(.headline)
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                 )
                             
                             VStack(alignment: .leading, spacing: 4) {
@@ -592,7 +592,7 @@ struct GigPromoteView: View {
                             Text("$\(String(format: "%.0f", gig.price))")
                                 .font(.title3)
                                 .fontWeight(.bold)
-                                .foregroundColor(.purple)
+                                .foregroundColor(.appAccent)
                         }
                         .padding()
                         .background(Color(.systemGray6))
@@ -645,10 +645,10 @@ struct GigPromoteView: View {
                             Text("$\(String(format: "%.2f", promotionPrice))")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.purple)
+                                .foregroundColor(.appAccent)
                         }
                         .padding()
-                        .background(Color.purple.opacity(0.1))
+                        .background(Color.appAccentLight)
                         .cornerRadius(12)
                         .padding(.horizontal)
                         
@@ -666,7 +666,7 @@ struct GigPromoteView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple)
+                            .background(Color.appAccent)
                             .cornerRadius(12)
                     }
                     .padding(.horizontal)

@@ -64,7 +64,7 @@ struct AnalyticsView: View {
                             .pickerStyle(MenuPickerStyle())
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color(.systemGray6))
+                            .background(Color.appGrayLight)
                             .cornerRadius(8)
                         }
                     }
@@ -361,7 +361,7 @@ struct PerformanceChart: View {
                             .foregroundColor(.secondary)
                         
                         Rectangle()
-                            .fill(Color.purple.opacity(0.7))
+                            .fill(Color.appAccent.opacity(0.7))
                             .frame(width: 30, height: CGFloat(point.views) / 2)
                             .cornerRadius(4)
                         
@@ -378,7 +378,7 @@ struct PerformanceChart: View {
                 .foregroundColor(.secondary)
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.appGrayLight)
         .cornerRadius(12)
     }
     
@@ -411,10 +411,10 @@ struct ConversionMetricRow: View {
             Text(value)
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.appGrayLight)
         .cornerRadius(12)
     }
 }

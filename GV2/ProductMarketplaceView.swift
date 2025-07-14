@@ -24,13 +24,13 @@ struct ProductMarketplaceView: View {
                     Button(action: { showingAIChat = true }) {
                         HStack {
                             Image(systemName: "sparkles")
-                                .foregroundColor(.purple)
+                                .foregroundColor(.appAccent)
                             Text("Ask AI to find products...")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appGray)
                             Spacer()
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.appGrayLight)
                         .cornerRadius(12)
                         .padding(.horizontal)
                     }
@@ -48,8 +48,8 @@ struct ProductMarketplaceView: View {
                                         .fontWeight(.medium)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
-                                        .background(selectedCategory == category ? Color.purple : Color(.systemGray5))
-                                        .foregroundColor(selectedCategory == category ? .white : .primary)
+                                                                                                            .background(selectedCategory == category ? Color.appAccent : Color.appAccentLight)
+                                .foregroundColor(selectedCategory == category ? .appWhite : .appAccent)
                                         .cornerRadius(20)
                                 }
                             }
@@ -200,7 +200,7 @@ struct ProductCard: View {
                     Text("$\(String(format: "%.2f", product.price))")
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundColor(.purple)
+                                                        .foregroundColor(.appAccent)
                 }
             }
             .padding(12)

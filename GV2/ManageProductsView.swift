@@ -61,7 +61,7 @@ struct ManageProductsView: View {
                         TextField("Search products...", text: $searchText)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.appGrayLight)
                     .cornerRadius(12)
                     
                     HStack {
@@ -179,11 +179,11 @@ struct ProductRowView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.purple.opacity(0.3))
+                    .fill(Color.appGrayLight)
                     .frame(width: 60, height: 60)
                     .overlay(
                         Image(systemName: "bag")
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                     )
             }
             
@@ -201,7 +201,7 @@ struct ProductRowView: View {
                 Text(String(format: "$%.2f", product.price))
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.purple)
+                                            .foregroundColor(.appAccent)
             }
             
             Spacer()
@@ -222,7 +222,7 @@ struct ProductRowView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color.appGrayLight)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
         .sheet(isPresented: $showingEditSheet) {

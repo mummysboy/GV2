@@ -54,7 +54,7 @@ struct ChatView: View {
                     
                     Button(action: sendMessage) {
                         Image(systemName: "paperplane.fill")
-                            .foregroundColor(messageText.isEmpty || moderationService.isProcessing ? .gray : .purple)
+                            .foregroundColor(messageText.isEmpty || moderationService.isProcessing ? .appGrayLight : .appAccent)
                             .font(.title3)
                     }
                     .disabled(messageText.isEmpty || moderationService.isProcessing)
@@ -74,7 +74,7 @@ struct ChatView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {}) {
                         Image(systemName: "phone")
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                     }
                 }
             }
@@ -173,7 +173,7 @@ struct UserChatMessageBubble: View {
                 Text(message.content)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(isFromCurrentUser ? Color.purple : Color(.systemGray5))
+                                            .background(isFromCurrentUser ? Color.appAccent : Color.appGrayLight)
                     .foregroundColor(isFromCurrentUser ? .white : .primary)
                     .cornerRadius(18)
                 

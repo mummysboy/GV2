@@ -61,8 +61,9 @@ struct ContentView: View {
                         }
                         .tag(4)
                 }
-                .accentColor(.purple)
+                .accentColor(.appVerification)
                 .preferredColorScheme(.light)
+                .background(Color.appBackground)
             } else {
                 OnboardingView()
             }
@@ -130,14 +131,19 @@ struct HomeFeedView: View {
                 Button(action: { showingAIChat = true }) {
                     HStack {
                         Image(systemName: "sparkles")
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                         Text("Ask AI to find services...")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.appTextSecondary)
                         Spacer()
                     }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(Color.appSurfaceSecondary)
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.appBorder, lineWidth: 1)
+                    )
                     .padding(.horizontal)
                 }
                 .padding(.top)
@@ -149,17 +155,22 @@ struct HomeFeedView: View {
                             Button(action: {}) {
                                 Text(category)
                                     .font(.caption)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(Color.purple.opacity(0.1))
-                                    .foregroundColor(.purple)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(Color.appSurfaceSecondary)
+                                    .foregroundColor(.appText)
                                     .cornerRadius(20)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.appBorder, lineWidth: 1)
+                                    )
                             }
                         }
                     }
                     .padding(.horizontal)
                 }
-                .padding(.vertical, 8)
+                .padding(.vertical, 12)
                 
                 // Gig Feed
                 ScrollView {
@@ -173,15 +184,16 @@ struct HomeFeedView: View {
             }
             .navigationTitle("Gig")
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingCreateGig = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.purple)
-                            .font(.title2)
+                            .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: { showingCreateGig = true }) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.appAccent)
+                                .font(.title2)
+                                .shadow(color: .appAccent.opacity(0.3), radius: 2, x: 0, y: 1)
+                        }
                     }
                 }
-            }
         }
         .sheet(isPresented: $showingAIChat) {
             AIChatView()
@@ -201,27 +213,29 @@ struct GigCardView: View {
             // Header with provider info
             HStack {
                 Circle()
-                    .fill(Color.purple.opacity(0.3))
-                    .frame(width: 40, height: 40)
+                    .fill(Color.appAccent)
+                    .frame(width: 48, height: 48)
                     .overlay(
                         Text(String(gig.provider?.name?.prefix(1) ?? "U"))
                             .font(.headline)
-                            .foregroundColor(.purple)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
                     )
+                    .shadow(color: .appAccent.opacity(0.3), radius: 4, x: 0, y: 2)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(gig.provider?.name ?? "Unknown Provider")
                         .font(.headline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.appText)
                     
                     HStack {
                         Text(gig.location ?? "Location")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.appTextSecondary)
                         
                         if gig.provider?.isVerified == true {
                             Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.appVerification)
                                 .font(.caption)
                         }
                     }
@@ -233,12 +247,16 @@ struct GigCardView: View {
                     Text("$\(String(format: "%.0f", gig.price))")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.purple)
+                        .foregroundColor(.appAccent)
                     
                     Text(gig.priceType ?? "per service")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.appAccent.opacity(0.1))
+                .cornerRadius(12)
             }
             
             // Gig content
@@ -246,11 +264,11 @@ struct GigCardView: View {
                 Text(gig.title ?? "Untitled Gig")
                     .font(.title3)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.appText)
                 
                 Text(gig.gigDescription ?? "No description available")
                     .font(.body)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.appTextSecondary)
                     .lineLimit(3)
                 
                 // Tags
@@ -260,11 +278,16 @@ struct GigCardView: View {
                             ForEach(tags, id: \.self) { tag in
                                 Text("#\(tag)")
                                     .font(.caption)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.purple.opacity(0.1))
-                                    .foregroundColor(.purple)
-                                    .cornerRadius(8)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.appSurfaceSecondary)
+                                    .foregroundColor(.appTextSecondary)
+                                    .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.appBorder, lineWidth: 1)
+                                    )
                             }
                         }
                     }
@@ -272,40 +295,48 @@ struct GigCardView: View {
             }
             
             // Action buttons
-            HStack {
+            HStack(spacing: 12) {
                 Button(action: { showingDetail = true }) {
-                    HStack {
+                    HStack(spacing: 6) {
                         Image(systemName: "eye")
                         Text("View Details")
                     }
                     .font(.caption)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.purple.opacity(0.1))
-                    .foregroundColor(.purple)
-                    .cornerRadius(8)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color.appSurfaceSecondary)
+                    .foregroundColor(.appText)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.appBorder, lineWidth: 1)
+                    )
                 }
                 
                 Spacer()
                 
                 Button(action: {}) {
-                    HStack {
+                    HStack(spacing: 6) {
                         Image(systemName: "message")
                         Text("Message")
                     }
                     .font(.caption)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.purple)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Color.appAccent)
                     .foregroundColor(.white)
-                    .cornerRadius(8)
+                    .cornerRadius(12)
+                    .shadow(color: .appAccent.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
             }
+
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
+        .padding(20)
+        .background(Color.appSurface)
+        .cornerRadius(20)
+        .shadow(color: .appShadow, radius: 12, x: 0, y: 4)
         .sheet(isPresented: $showingDetail) {
             GigDetailView(gig: gig, highlightedReviewId: nil)
         }
@@ -324,7 +355,7 @@ struct SearchView: View {
                 // Search bar
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                     
                     TextField("Search for services...", text: $searchText)
                         .textFieldStyle(PlainTextFieldStyle())
@@ -332,13 +363,18 @@ struct SearchView: View {
                     if !searchText.isEmpty {
                         Button(action: { searchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appTextSecondary)
                         }
                     }
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(Color.appSurfaceSecondary)
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.appBorder, lineWidth: 1)
+                )
                 .padding(.horizontal)
                 
                 // Category filters
@@ -348,11 +384,17 @@ struct SearchView: View {
                             Button(action: { selectedCategory = category }) {
                                 Text(category)
                                     .font(.caption)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(selectedCategory == category ? Color.purple : Color.purple.opacity(0.1))
-                                    .foregroundColor(selectedCategory == category ? .white : .purple)
+                                    .fontWeight(.medium)
+                                    .padding(.horizontal, 20)
+                                    .padding(.vertical, 10)
+                                    .background(selectedCategory == category ? Color.appAccent : Color.appSurfaceSecondary)
+                                    .foregroundColor(selectedCategory == category ? .white : .appText)
                                     .cornerRadius(20)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(selectedCategory == category ? Color.clear : Color.appBorder, lineWidth: 1)
+                                    )
+                                    .shadow(color: selectedCategory == category ? .appAccent.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                             }
                         }
                     }
@@ -366,16 +408,16 @@ struct SearchView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 48))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                     
                     Text("Search for amazing services")
                         .font(.title2)
                         .fontWeight(.semibold)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.appText)
                     
                     Text("Find everything from surf lessons to resume help")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding()
@@ -397,16 +439,16 @@ struct MessagesView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "message.circle")
                         .font(.system(size: 48))
-                        .foregroundColor(.purple)
+                        .foregroundColor(.appAccent)
                     
                     Text("No messages yet")
                         .font(.title2)
                         .fontWeight(.semibold)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.appText)
                     
                     Text("Start a conversation with service providers")
                         .font(.body)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appTextSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding()
@@ -443,13 +485,13 @@ struct ProfileView: View {
                     // Profile header
                     VStack(spacing: 16) {
                         Circle()
-                            .fill(Color.purple.opacity(0.3))
+                            .fill(Color.appAccentLight)
                             .frame(width: 100, height: 100)
                             .overlay(
                                 Text(String(currentUser?.name?.prefix(1) ?? "U"))
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.appAccent)
                             )
                         
                         VStack(spacing: 4) {
@@ -459,16 +501,16 @@ struct ProfileView: View {
                             
                             Text(currentUser?.location ?? "Location")
                                 .font(.body)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appTextSecondary)
                         }
                         
                         if currentUser?.isVerified == true {
                             HStack {
                                 Image(systemName: "checkmark.seal.fill")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.appVerification)
                                 Text("Verified Provider")
                                     .font(.caption)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.appVerification)
                             }
                         }
                     }
@@ -482,7 +524,7 @@ struct ProfileView: View {
                                 .fontWeight(.bold)
                             Text("Reviews")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appTextSecondary)
                         }
                         
                         VStack {
@@ -491,7 +533,7 @@ struct ProfileView: View {
                                 .fontWeight(.bold)
                             Text("Rating")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appTextSecondary)
                         }
                         
                         VStack {
@@ -500,11 +542,11 @@ struct ProfileView: View {
                                 .fontWeight(.bold)
                             Text("Gigs")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appTextSecondary)
                         }
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.appSurface)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -516,10 +558,10 @@ struct ProfileView: View {
                                 Text("Create New Gig")
                             }
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.appWhite)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple)
+                            .background(Color.appAccent)
                             .cornerRadius(12)
                         }
                         
@@ -529,10 +571,10 @@ struct ProfileView: View {
                                 Text("Edit Profile")
                             }
                             .font(.headline)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple.opacity(0.1))
+                            .background(Color.appAccentLight)
                             .cornerRadius(12)
                         }
                         
@@ -542,10 +584,10 @@ struct ProfileView: View {
                                 Text("Manage Gigs")
                             }
                             .font(.headline)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple.opacity(0.1))
+                            .background(Color.appAccentLight)
                             .cornerRadius(12)
                         }
                         
@@ -555,10 +597,10 @@ struct ProfileView: View {
                                 Text("Manage Products")
                             }
                             .font(.headline)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple.opacity(0.1))
+                            .background(Color.appAccentLight)
                             .cornerRadius(12)
                         }
                         
@@ -568,10 +610,10 @@ struct ProfileView: View {
                                 Text("Analytics")
                             }
                             .font(.headline)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple.opacity(0.1))
+                            .background(Color.appAccentLight)
                             .cornerRadius(12)
                         }
                     }
@@ -584,7 +626,7 @@ struct ProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {}) {
                         Image(systemName: "gearshape")
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                     }
                 }
             }
@@ -634,9 +676,9 @@ struct AIChatView: View {
                                 HStack {
                                     HStack(spacing: 4) {
                                         ForEach(0..<3) { index in
-                                            Circle()
-                                                .fill(Color.purple)
-                                                .frame(width: 8, height: 8)
+                                                                                    Circle()
+                                            .fill(Color.appAccent)
+                                            .frame(width: 8, height: 8)
                                                 .scaleEffect(1.0)
                                                 .animation(
                                                     Animation.easeInOut(duration: 0.6)
@@ -647,14 +689,14 @@ struct AIChatView: View {
                                         }
                                     }
                                     .padding()
-                                    .background(Color.purple.opacity(0.1))
+                                    .background(Color.appAccentLight)
                                     .cornerRadius(12)
                                     Spacer()
                                 }
                             }
                         }
                         .padding()
-                        .onChange(of: chatMessages.count) { _ in
+                        .onChange(of: chatMessages.count) { oldValue, newValue in
                             withAnimation {
                                 proxy.scrollTo(chatMessages.last?.id, anchor: .bottom)
                             }
@@ -670,7 +712,7 @@ struct AIChatView: View {
                     
                     Button(action: sendMessage) {
                         Image(systemName: "paperplane.fill")
-                            .foregroundColor(messageText.isEmpty || aiService.isProcessing ? .gray : .purple)
+                            .foregroundColor(messageText.isEmpty || aiService.isProcessing ? .appGrayLight : .appAccent)
                     }
                     .disabled(messageText.isEmpty || aiService.isProcessing)
                 }
@@ -765,14 +807,14 @@ struct ChatMessageView: View {
                     Spacer()
                     Text(message.content)
                         .padding()
-                        .background(Color.purple)
-                        .foregroundColor(.white)
+                        .background(Color.appAccent)
+                        .foregroundColor(.appWhite)
                         .cornerRadius(12)
                 } else {
                     Text(message.content)
                         .padding()
-                        .background(Color.purple.opacity(0.1))
-                        .foregroundColor(.primary)
+                        .background(Color.appAccentLight)
+                        .foregroundColor(.appGray)
                         .cornerRadius(12)
                     Spacer()
                 }
@@ -789,8 +831,8 @@ struct ChatMessageView: View {
                                         .font(.caption)
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
-                                        .background(Color.purple.opacity(0.1))
-                                        .foregroundColor(.purple)
+                                        .background(Color.appAccentLight)
+                                        .foregroundColor(.appAccent)
                                         .cornerRadius(8)
                                 }
                             }
@@ -803,7 +845,7 @@ struct ChatMessageView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Recommended Services:")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.appGrayLight)
                         
                         ForEach(message.gigs) { gig in
                             Button(action: { onGigTap(gig) }) {
@@ -811,20 +853,20 @@ struct ChatMessageView: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(gig.title ?? "Untitled")
                                             .font(.headline)
-                                            .foregroundColor(.primary)
+                                            .foregroundColor(.appGray)
                                         
                                         Text("$\(String(format: "%.0f", gig.price)) \(gig.priceType ?? "")")
                                             .font(.caption)
-                                            .foregroundColor(.purple)
+                                            .foregroundColor(.appAccent)
                                     }
                                     
                                     Spacer()
                                     
                                     Image(systemName: "chevron.right")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.appGrayLight)
                                 }
                                 .padding()
-                                .background(Color(.systemGray6))
+                                .background(Color.appGrayLight)
                                 .cornerRadius(8)
                             }
                         }
@@ -866,11 +908,11 @@ struct GigDetailView: View {
                             Text("$\(String(format: "%.0f", gig.price))")
                                 .font(.title)
                                 .fontWeight(.bold)
-                                .foregroundColor(.purple)
+                                .foregroundColor(.appAccent)
                             
                             Text(gig.priceType ?? "per service")
                                 .font(.body)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appGrayLight)
                         }
                     }
                     
@@ -878,28 +920,28 @@ struct GigDetailView: View {
                     NavigationLink(destination: ProviderProfileView(provider: gig.provider ?? User())) {
                         HStack {
                             Circle()
-                                .fill(Color.purple.opacity(0.3))
+                                .fill(Color.appAccentLight)
                                 .frame(width: 50, height: 50)
                                 .overlay(
                                     Text(String(gig.provider?.name?.prefix(1) ?? "U"))
                                         .font(.title2)
                                         .fontWeight(.bold)
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                 )
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(gig.provider?.name ?? "Unknown Provider")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.appGray)
                                 
                                 HStack {
                                     Text(gig.location ?? "Location")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.appGrayLight)
                                     
                                     if gig.provider?.isVerified == true {
                                         Image(systemName: "checkmark.seal.fill")
-                                            .foregroundColor(.blue)
+                                            .foregroundColor(.appVerification)
                                             .font(.caption)
                                     }
                                 }
@@ -910,17 +952,17 @@ struct GigDetailView: View {
                             VStack(alignment: .trailing, spacing: 4) {
                                 Text(String(format: "%.1f", gig.provider?.rating ?? 0.0))
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.appGray)
                                 Text("★")
-                                    .foregroundColor(.yellow)
+                                    .foregroundColor(.appAccent)
                             }
                             
                             Image(systemName: "chevron.right")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appGrayLight)
                                 .font(.caption)
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.appGrayLight)
                         .cornerRadius(12)
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -932,7 +974,7 @@ struct GigDetailView: View {
                         
                         Text(gig.gigDescription ?? "No description available")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.appGrayLight)
                     }
                     
                     // Tags
@@ -947,8 +989,8 @@ struct GigDetailView: View {
                                         .font(.caption)
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
-                                        .background(Color.purple.opacity(0.1))
-                                        .foregroundColor(.purple)
+                                        .background(Color.appAccentLight)
+                                        .foregroundColor(.appAccent)
                                         .cornerRadius(8)
                                 }
                             }
@@ -966,10 +1008,10 @@ struct GigDetailView: View {
                                 Text("Message Provider")
                             }
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.appWhite)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple)
+                            .background(Color.appAccent)
                             .cornerRadius(12)
                         }
                         
@@ -979,10 +1021,10 @@ struct GigDetailView: View {
                                 Text("Call Provider")
                             }
                             .font(.headline)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.appAccent)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.purple.opacity(0.1))
+                            .background(Color.appAccentLight)
                             .cornerRadius(12)
                         }
                     }
@@ -1019,7 +1061,7 @@ struct GigDetailView: View {
                 if reviewScheduler.gigReviews.isEmpty {
                     Text("No reviews yet.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.appGrayLight)
                 } else {
                     ForEach(reviewScheduler.gigReviews.prefix(3)) { review in
                         VStack(alignment: .leading, spacing: 4) {
@@ -1033,23 +1075,23 @@ struct GigDetailView: View {
                                         .font(.caption2)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color.green.opacity(0.2))
-                                        .foregroundColor(.green)
+                                        .background(Color.appAccentLight)
+                                        .foregroundColor(.appAccent)
                                         .clipShape(Capsule())
                                 }
                                 
                                 Spacer()
                                 Text(String(format: "%.1f ★", review.rating))
-                                    .foregroundColor(.yellow)
+                                    .foregroundColor(.appAccent)
                             }
                             Text(review.comment)
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.appGrayLight)
                         }
                         .padding()
                         .background(
                             review.id == highlightedReviewId
-                            ? Color.yellow.opacity(0.2)
+                            ? Color.appAccentLight.opacity(0.2)
                             : Color.clear
                         )
                         .cornerRadius(8)

@@ -24,12 +24,12 @@ struct InAppCallView: View {
                 VStack(spacing: 20) {
                     // Provider avatar
                     Circle()
-                        .fill(Color.purple.opacity(0.3))
+                        .fill(Color.appAccentLight)
                         .frame(width: 120, height: 120)
                         .overlay(
                             Text(String(provider.name?.prefix(1) ?? "U"))
                                 .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(.purple)
+                                .foregroundColor(.appAccent)
                         )
                     
                     // Provider name and status
@@ -67,7 +67,7 @@ struct InAppCallView: View {
                             CallControlButton(
                                 icon: callService.isSpeakerOn ? "speaker.wave.3.fill" : "speaker.fill",
                                 title: callService.isSpeakerOn ? "Speaker Off" : "Speaker",
-                                color: callService.isSpeakerOn ? .purple : .white
+                                color: callService.isSpeakerOn ? .appAccent : .appWhite
                             ) {
                                 callService.toggleSpeaker()
                             }

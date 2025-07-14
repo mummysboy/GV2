@@ -39,20 +39,22 @@ struct CreateGigView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     // Header
-                    VStack(spacing: 8) {
+                    VStack(spacing: 12) {
                         Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.purple)
+                            .font(.system(size: 64))
+                            .foregroundColor(.appAccent)
+                            .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
 
                         Text("Create Your Gig")
                             .font(.largeTitle)
                             .fontWeight(.bold)
+                            .foregroundColor(.appText)
 
                         Text("Share your skills with the community")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.appTextSecondary)
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 24)
 
                     // Form
                     VStack(spacing: 20) {
@@ -60,38 +62,41 @@ struct CreateGigView: View {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Image(systemName: "info.circle.fill")
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.appAccent)
                                 Text("Service Information")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.appText)
                             }
 
                             // Title
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: "tag.fill")
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                     Text("Gig Title")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appText)
                                 }
 
                                 TextField("e.g., Professional Photography Session", text: $title)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .hingeInputField()
                             }
 
                             // Description
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: "text.alignleft")
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                     Text("Description")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appText)
                                 }
 
                                 TextField("Describe your service in detail...", text: $description, axis: .vertical)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .hingeInputField()
                                     .lineLimit(4...8)
 
                                 // Enhance with AI button
@@ -101,11 +106,17 @@ struct CreateGigView: View {
                                             Image(systemName: "sparkles")
                                             Text("Enhance with AI")
                                         }
-                                        .foregroundColor(.purple)
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appAccent)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
-                                        .background(Color.purple.opacity(0.1))
-                                        .cornerRadius(8)
+                                        .background(Color.appAccent.opacity(0.1))
+                                        .cornerRadius(12)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color.appAccent.opacity(0.3), lineWidth: 1)
+                                        )
                                     }
                                     .disabled(isEnhancing)
                                     .overlay(
@@ -132,10 +143,11 @@ struct CreateGigView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: "folder.fill")
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                     Text("Category")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appText)
                                 }
 
                                 Menu {
@@ -152,19 +164,24 @@ struct CreateGigView: View {
                                 } label: {
                                     HStack {
                                         Text(selectedCategory.isEmpty ? "Choose Category" : selectedCategory)
-                                            .foregroundColor(selectedCategory.isEmpty ? .secondary : .primary)
+                                            .foregroundColor(selectedCategory.isEmpty ? .appTextSecondary : .appText)
                                         Spacer()
                                         Image(systemName: "chevron.down")
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(.appTextSecondary)
                                     }
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    .background(Color.appSurfaceSecondary)
+                                    .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.appBorder, lineWidth: 1)
+                                    )
                                 }
 
                                 if showCustomCategory {
                                     TextField("Enter custom category", text: $customCategory)
-                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                        .hingeInputField()
                                         .onChange(of: customCategory) { newValue in
                                             selectedCategory = newValue
                                         }
@@ -176,38 +193,41 @@ struct CreateGigView: View {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Image(systemName: "dollarsign.circle.fill")
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.appAccent)
                                 Text("Pricing")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.appText)
                             }
 
                             HStack(spacing: 16) {
                                 VStack(alignment: .leading, spacing: 8) {
                                     HStack {
                                         Image(systemName: "dollarsign")
-                                            .foregroundColor(.purple)
+                                            .foregroundColor(.appAccent)
                                         Text("Price")
                                             .font(.headline)
-                                            .foregroundColor(.primary)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.appText)
                                     }
 
                                     HStack {
                                         Text("$")
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(.appTextSecondary)
                                         TextField("0", text: $price)
                                             .keyboardType(.decimalPad)
                                     }
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .hingeInputField()
                                 }
 
                                 VStack(alignment: .leading, spacing: 8) {
                                     HStack {
                                         Image(systemName: "clock")
-                                            .foregroundColor(.purple)
+                                            .foregroundColor(.appAccent)
                                         Text("Price Type")
                                             .font(.headline)
-                                            .foregroundColor(.primary)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.appText)
                                     }
 
                                     Picker("Price Type", selection: $priceType) {
@@ -216,9 +236,14 @@ struct CreateGigView: View {
                                         }
                                     }
                                     .pickerStyle(MenuPickerStyle())
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(8)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
+                                    .background(Color.appSurfaceSecondary)
+                                    .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.appBorder, lineWidth: 1)
+                                    )
                                 }
                             }
                         }
@@ -227,24 +252,26 @@ struct CreateGigView: View {
                         VStack(alignment: .leading, spacing: 16) {
                             HStack {
                                 Image(systemName: "location.circle.fill")
-                                    .foregroundColor(.purple)
+                                    .foregroundColor(.appAccent)
                                 Text("Location & Tags")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.appText)
                             }
 
                             // Location
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: "location.fill")
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                     Text("Location")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appText)
                                 }
 
                                 TextField("City, State", text: $location)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .hingeInputField()
                                     .onChange(of: location) { query in
                                         if query.count >= 2 {
                                             LocationService.shared.autocomplete(query) { results in
@@ -264,17 +291,21 @@ struct CreateGigView: View {
                                             }) {
                                                 HStack {
                                                     Image(systemName: "location")
-                                                        .foregroundColor(.purple)
+                                                        .foregroundColor(.appAccent)
                                                         .font(.caption)
                                                     Text(suggestion)
                                                         .font(.caption)
-                                                        .foregroundColor(.primary)
+                                                        .foregroundColor(.appText)
                                                     Spacer()
                                                 }
-                                                .padding(.horizontal, 12)
-                                                .padding(.vertical, 8)
-                                                .background(Color(.systemGray6))
-                                                .cornerRadius(6)
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 10)
+                                                .background(Color.appSurfaceSecondary)
+                                                .cornerRadius(12)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .stroke(Color.appBorder, lineWidth: 1)
+                                                )
                                             }
                                         }
                                     }
@@ -285,18 +316,19 @@ struct CreateGigView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
                                     Image(systemName: "tag.fill")
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(.appAccent)
                                     Text("Tags")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appText)
                                 }
 
                                 TextField("e.g., photography, portraits, events (separate with commas)", text: $tags)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .hingeInputField()
 
                                 Text("Tags help people find your service")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.appTextSecondary)
                             }
                         }
 
@@ -306,42 +338,59 @@ struct CreateGigView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Make gig active")
                                         .font(.headline)
-                                        .foregroundColor(.primary)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.appText)
 
                                     Text("Active gigs are visible to customers")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.appTextSecondary)
                                 }
 
                                 Spacer()
 
                                 Toggle("", isOn: $isActive)
-                                    .toggleStyle(SwitchToggleStyle(tint: .purple))
+                                    .toggleStyle(SwitchToggleStyle(tint: .appAccent))
                             }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                            .padding(20)
+                            .background(Color.appSurfaceSecondary)
+                            .cornerRadius(16)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.appBorder, lineWidth: 1)
+                            )
                         }
                     }
                     .padding(.horizontal, 24)
 
                     // Action buttons
-                    VStack(spacing: 12) {
+                    VStack(spacing: 16) {
                         Button(action: createGig) {
                             Text("Create Gig")
                                 .font(.headline)
+                                .fontWeight(.semibold)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.purple)
-                                .cornerRadius(12)
+                                .padding(.vertical, 16)
+                                .background(Color.appAccent)
+                                .cornerRadius(16)
+                                .shadow(color: .appAccent.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(title.isEmpty || description.isEmpty || price.isEmpty || selectedCategory.isEmpty)
 
                         Button("Cancel") {
                             dismiss()
                         }
-                        .foregroundColor(.purple)
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.appAccent)
+                        .padding(.vertical, 16)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.appSurfaceSecondary)
+                        .cornerRadius(16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.appAccent, lineWidth: 1)
+                        )
                     }
                     .padding(.horizontal, 24)
                     .padding(.bottom, 40)

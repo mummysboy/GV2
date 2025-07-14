@@ -40,7 +40,7 @@ struct ProductAIChatView: View {
                                 } else {
                                     Text(message.text)
                                         .padding(10)
-                                        .background(Color(.systemGray6))
+                                        .background(Color.appGrayLight)
                                         .cornerRadius(12)
                                     Spacer()
                                 }

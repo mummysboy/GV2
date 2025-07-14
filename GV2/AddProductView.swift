@@ -120,11 +120,11 @@ struct AddProductView: View {
                             TextEditor(text: $productDescription)
                                 .frame(minHeight: 100)
                                 .padding(8)
-                                .background(Color(.systemGray6))
+                                .background(Color.appGrayLight)
                                 .cornerRadius(8)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color(.systemGray4), lineWidth: 1)
+                                        .stroke(Color.appGray, lineWidth: 1)
                                 )
                         }
                         

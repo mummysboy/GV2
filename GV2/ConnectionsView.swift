@@ -122,7 +122,7 @@ struct ConnectionRow: View {
                     
                     if user.isVerified {
                         Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.appVerification)
                             .font(.caption)
                     }
                 }
@@ -283,7 +283,7 @@ struct ShareButton: View {
                     .font(.caption)
             }
             .padding()
-            .background(Color(.systemGray6))
+                                    .background(Color.appGrayLight)
             .cornerRadius(12)
         }
     }
