@@ -192,6 +192,17 @@ struct ProductMarketplaceView: View {
             product.createdAt = Date()
             product.updatedAt = Date()
             product.isActive = true
+            
+            // Generate product image
+            ProductImageService.shared.generateProductImage(for: product) { image in
+                if let image = image,
+                   let imageData = image.jpegData(compressionQuality: 0.8) {
+                    DispatchQueue.main.async {
+                        product.images = [imageData] as NSObject
+                        try? viewContext.save()
+                    }
+                }
+            }
         }
         
         do {
@@ -209,16 +220,12 @@ struct ProductCard: View {
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 8) {
-                // Product image placeholder
-                Rectangle()
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(height: 120)
-                    .cornerRadius(12)
-                    .overlay(
-                        Image(systemName: "photo")
-                            .foregroundColor(.gray)
-                            .font(.title2)
-                    )
+                // Product image using new ProductImageView
+                ProductImageView(
+                    product: product,
+                    size: CGSize(width: 200, height: 120),
+                    cornerRadius: 12
+                )
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.name ?? "Unknown Product")
@@ -255,16 +262,12 @@ struct ProductDetailView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Product image placeholder
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 300)
-                        .cornerRadius(16)
-                        .overlay(
-                            Image(systemName: "photo")
-                                .foregroundColor(.gray)
-                                .font(.largeTitle)
-                        )
+                    // Product image using new ProductImageView
+                    ProductImageView(
+                        product: product,
+                        size: CGSize(width: UIScreen.main.bounds.width - 32, height: 300),
+                        cornerRadius: 16
+                    )
                     
                     VStack(alignment: .leading, spacing: 16) {
                         // Product name and price
