@@ -184,45 +184,9 @@ struct HomeFeedView: View {
             }
             .navigationTitle("Gig")
             .navigationBarTitleDisplayMode(.large)
-                            .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { showingCreateGig = true }) {
-                            Image(systemName: "plus")
-                                .foregroundColor(.appGrayDarker)
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .frame(width: 32, height: 32)
-                                .background(Color.appSurfaceSecondary)
-                                .cornerRadius(16)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.appGrayDarker, lineWidth: 1.5)
-                                )
-                        }
-                    }
-                    
-                    #if DEBUG
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            PersistenceController.forceRegenerateSampleData()
-                        }) {
-                            Image(systemName: "arrow.clockwise")
-                                .foregroundColor(.appVerification)
-                                .font(.title2)
-                        }
-                    }
-                    
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            PersistenceController.debugCheckProfilePictures()
-                        }) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(.appAccent)
-                                .font(.title2)
-                        }
-                    }
-                    #endif
-                }
+            .toolbar {
+                // All toolbar items removed as requested
+            }
         }
         .sheet(isPresented: $showingAIChat) {
             AIChatView()

@@ -138,6 +138,8 @@ struct ProductMarketplaceView: View {
     }
     
     private func loadSampleProducts() {
+        print("📦 Loading sample products...")
+        
         let sampleProducts = [
             // Flowers and Plants
             ("Fresh Roses Bouquet", "Beautiful hand-picked roses, perfect for any occasion. Available in red, pink, and white.", 45.99, "Creative"),
@@ -192,23 +194,14 @@ struct ProductMarketplaceView: View {
             product.createdAt = Date()
             product.updatedAt = Date()
             product.isActive = true
-            
-            // Generate product image
-            ProductImageService.shared.generateProductImage(for: product) { image in
-                if let image = image,
-                   let imageData = image.jpegData(compressionQuality: 0.8) {
-                    DispatchQueue.main.async {
-                        product.images = [imageData] as NSObject
-                        try? viewContext.save()
-                    }
-                }
-            }
         }
         
+        // Save to Core Data
         do {
             try viewContext.save()
+            print("✅ Successfully saved \(sampleProducts.count) sample products")
         } catch {
-            print("Error saving sample products: \(error)")
+            print("❌ Error saving sample products: \(error)")
         }
     }
 }

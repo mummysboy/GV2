@@ -25,263 +25,253 @@ class ProductImageService: ObservableObject {
     
     // MARK: - Product Image Generation
     func generateProductImage(for product: Product, completion: @escaping (UIImage?) -> Void) {
-        let productName = product.name?.lowercased() ?? ""
-        let productDescription = product.productDescription?.lowercased() ?? ""
+        let name = product.name ?? "Unknown Product"
+        let description = product.productDescription ?? ""
         
-        // Generate a unique key for this product
-        let productKey = "\(productName)_\(productDescription)".replacingOccurrences(of: " ", with: "_")
+        print("🖼️ Generating image for product: \(name)")
         
-        // Check cache first
-        if let cachedImage = cache.object(forKey: productKey as NSString) {
-            completion(cachedImage)
-            return
-        }
-        
-        // Check file cache
-        let cacheKey = productKey.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? productKey
-        let cacheURL = cacheDirectory.appendingPathComponent("\(cacheKey).jpg")
-        
-        if let imageData = try? Data(contentsOf: cacheURL),
-           let cachedImage = UIImage(data: imageData) {
-            cache.setObject(cachedImage, forKey: productKey as NSString)
-            completion(cachedImage)
-            return
-        }
-        
-        // Fetch from API based on product category
-        fetchProductImage(for: productName, description: productDescription) { [weak self] image in
-            guard let self = self, let image = image else {
-                completion(nil)
-                return
-            }
-            
-            // Cache the image
-            self.cache.setObject(image, forKey: productKey as NSString)
-            
-            // Save to file cache
-            if let imageData = image.jpegData(compressionQuality: 0.8) {
-                try? imageData.write(to: cacheURL)
-            }
-            
-            completion(image)
-        }
-    }
-    
-    private func fetchProductImage(for name: String, description: String, completion: @escaping (UIImage?) -> Void) {
-        // Determine the best API based on product type
+        // Get APIs for this specific product
         let apis = getProductImageAPIs(for: name, description: description)
         
-        fetchFromAPIs(apis: apis) { image in
-            DispatchQueue.main.async {
+        fetchFromMultipleAPIs(apis: apis, product: product) { image in
+            if let image = image {
+                print("✅ Successfully generated image for: \(name)")
                 completion(image)
+            } else {
+                print("❌ Failed to generate image for: \(name)")
+                completion(nil)
             }
         }
     }
     
     private func getProductImageAPIs(for name: String, description: String) -> [String] {
-        // Extract specific keywords from product name and description
+        // Extract general search terms
         let searchTerms = extractSearchTerms(from: name, description: description)
         
-        // Generate multiple API URLs with different search term combinations
+        // Generate unique seed for this product to ensure different images
+        let productSeed = abs(name.hashValue) % 1000
+        let category = searchTerms.primary ?? "product"
+        
+        // Generate multiple API URLs with different services
         var apis: [String] = []
         
-        // Primary search with specific product terms
-        if let primarySearch = searchTerms.primary {
-            apis.append("https://source.unsplash.com/400x300/?\(primarySearch)")
+        // Primary search with general category
+        if let primary = searchTerms.primary {
+            apis.append("https://source.unsplash.com/400x300/?\(primary)")
         }
         
-        // Secondary search with broader category terms
-        if let secondarySearch = searchTerms.secondary {
-            apis.append("https://source.unsplash.com/400x300/?\(secondarySearch)")
+        // Secondary search with broader term
+        if let secondary = searchTerms.secondary {
+            apis.append("https://source.unsplash.com/400x300/?\(secondary)")
         }
         
-        // Fallback with general product terms
-        if let fallbackSearch = searchTerms.fallback {
-            apis.append("https://source.unsplash.com/400x300/?\(fallbackSearch)")
-        }
-        
-        // Final fallback with category
-        let category = categorizeProduct(name: name, description: description)
+        // Fallback to general product
         apis.append("https://source.unsplash.com/400x300/?\(category)")
         
+        // Backup APIs with unique seeds for each product
+        apis.append("https://picsum.photos/400/300?random=\(productSeed)")
+        apis.append("https://loremflickr.com/400/300/\(category)?random=\(productSeed)")
+        apis.append("https://via.placeholder.com/400x300/4A90E2/FFFFFF?text=\(category.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? category)")
+        apis.append("https://dummyimage.com/400x300/4A90E2/FFFFFF&text=\(category.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? category)")
+        
+        print("🔗 Generated \(apis.count) unique API URLs for product: \(name)")
         return apis
     }
     
     private func extractSearchTerms(from name: String, description: String) -> (primary: String?, secondary: String?, fallback: String?) {
         let text = "\(name) \(description)".lowercased()
+        print("🔍 Analyzing text: \(text)")
         
-        // Extract specific product keywords
-        let productKeywords = extractProductKeywords(from: text)
+        // Extract specific product keywords from the name and description
+        let keywords = extractProductKeywords(from: text)
+        print("🔑 Extracted keywords: \(keywords)")
         
-        // Generate search term combinations
-        let primary = generatePrimarySearch(productKeywords)
-        let secondary = generateSecondarySearch(productKeywords)
-        let fallback = generateFallbackSearch(productKeywords)
+        // Generate more specific search terms based on actual product content
+        let primary = generateSpecificSearchTerm(keywords: keywords, name: name)
+        let secondary = generateCategorySearchTerm(keywords: keywords)
+        let fallback = generateFallbackSearchTerm(keywords: keywords, name: name)
+        
+        print("🎯 Primary search: \(primary ?? "none")")
+        print("🎯 Secondary search: \(secondary ?? "none")")
+        print("🎯 Fallback search: \(fallback ?? "none")")
         
         return (primary: primary, secondary: secondary, fallback: fallback)
     }
     
     private func extractProductKeywords(from text: String) -> [String] {
-        var keywords: [String] = []
+        // Remove common words that don't help with image search
+        let stopWords = Set(["the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did", "will", "would", "could", "should", "may", "might", "must", "can", "this", "that", "these", "those", "i", "you", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them", "my", "your", "his", "her", "its", "our", "their", "mine", "yours", "his", "hers", "ours", "theirs"])
         
-        // Extract specific product types
-        let productTypes = [
-            "lamp", "pillow", "clock", "decor", "furniture", "cushion", "vase", "mirror",
-            "wireless", "bluetooth", "usb", "charger", "headphones", "speaker", "phone",
-            "makeup", "cream", "nail", "hair", "brush", "cosmetic", "skincare", "lotion",
-            "wallet", "scarf", "sunglasses", "watch", "jewelry", "bag", "shoes", "dress",
-            "pet", "dog", "cat", "bed", "toy", "food", "leash", "collar", "bowl",
-            "flower", "rose", "succulent", "tulip", "orchid", "plant", "art", "craft",
-            "bread", "honey", "coffee", "chocolate", "cake", "cooking", "baking", "food"
-        ]
-        
-        for type in productTypes {
-            if text.contains(type) {
-                keywords.append(type)
+        // Split text into words and filter out stop words and short words
+        let words = text.components(separatedBy: .whitespacesAndNewlines)
+            .map { $0.trimmingCharacters(in: .punctuationCharacters) }
+            .filter { word in
+                word.count > 2 && !stopWords.contains(word) && !word.isEmpty
             }
-        }
         
-        // Extract materials and features
-        let materials = [
-            "leather", "silk", "cotton", "wood", "metal", "glass", "ceramic", "plastic",
-            "memory foam", "stainless steel", "organic", "natural", "premium", "handcrafted"
-        ]
+        // Remove duplicates and sort by frequency
+        let wordCounts = Dictionary(grouping: words, by: { $0 })
+            .mapValues { $0.count }
+            .sorted { $0.value > $1.value }
         
-        for material in materials {
-            if text.contains(material) {
-                keywords.append(material)
-            }
-        }
-        
-        // Extract colors if mentioned
-        let colors = [
-            "black", "white", "red", "blue", "green", "yellow", "pink", "purple", "brown", "gray"
-        ]
-        
-        for color in colors {
-            if text.contains(color) {
-                keywords.append(color)
-            }
-        }
-        
-        // Specific product matching for better accuracy
-        let specificMatches = getSpecificProductMatches(from: text)
-        keywords.append(contentsOf: specificMatches)
-        
-        return keywords
+        return Array(wordCounts.map { $0.key }.prefix(5)) // Take top 5 most frequent words
     }
     
-    private func getSpecificProductMatches(from text: String) -> [String] {
-        var matches: [String] = []
+    private func generateSpecificSearchTerm(keywords: [String], name: String) -> String? {
+        guard !keywords.isEmpty else { return nil }
         
-        // Home & Garden specific matches
-        if text.contains("table lamp") || text.contains("desk lamp") {
-            matches.append("table lamp")
-        }
-        if text.contains("floor lamp") {
-            matches.append("floor lamp")
-        }
-        if text.contains("throw pillow") || text.contains("cushion") {
-            matches.append("throw pillow")
-        }
-        if text.contains("wall clock") {
-            matches.append("wall clock")
-        }
-        if text.contains("vase") {
-            matches.append("vase")
-        }
-        if text.contains("mirror") {
-            matches.append("mirror")
-        }
+        // Use the most specific keywords from the product name and description
+        let specificKeywords = keywords.prefix(3).joined(separator: ",")
+        return specificKeywords.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    }
+    
+    private func generateCategorySearchTerm(keywords: [String]) -> String? {
+        guard !keywords.isEmpty else { return nil }
         
-        // Tech specific matches
-        if text.contains("wireless charger") {
-            matches.append("wireless charger")
-        }
-        if text.contains("bluetooth speaker") {
-            matches.append("bluetooth speaker")
-        }
-        if text.contains("usb cable") {
-            matches.append("usb cable")
-        }
-        if text.contains("phone case") {
-            matches.append("phone case")
-        }
+        // Map keywords to broader but still relevant categories
+        let categoryMap: [String: String] = [
+            // Flowers and plants
+            "rose": "rose flower",
+            "tulip": "tulip flower", 
+            "orchid": "orchid flower",
+            "succulent": "succulent plant",
+            "flower": "flower bouquet",
+            "plant": "indoor plant",
+            
+            // Home decor
+            "lamp": "table lamp",
+            "pillow": "decorative pillow",
+            "cushion": "home cushion",
+            "vase": "flower vase",
+            "mirror": "wall mirror",
+            "clock": "wall clock",
+            "decor": "home decoration",
+            
+            // Electronics
+            "wireless": "wireless device",
+            "bluetooth": "bluetooth speaker",
+            "usb": "usb charger",
+            "charger": "phone charger",
+            "headphones": "wireless headphones",
+            "speaker": "portable speaker",
+            
+            // Beauty
+            "makeup": "cosmetic makeup",
+            "cream": "beauty cream",
+            "nail": "nail polish",
+            "hair": "hair care",
+            "brush": "makeup brush",
+            "cosmetic": "beauty product",
+            
+            // Fashion
+            "wallet": "leather wallet",
+            "scarf": "fashion scarf",
+            "sunglasses": "designer sunglasses",
+            "watch": "wrist watch",
+            "jewelry": "fashion jewelry",
+            "bag": "handbag purse",
+            
+            // Pet supplies
+            "pet": "pet supplies",
+            "dog": "dog toy",
+            "cat": "cat toy",
+            "bed": "pet bed",
+            "toy": "pet toy",
+            "leash": "dog leash",
+            
+            // Art and crafts
+            "art": "artwork painting",
+            "painting": "canvas painting",
+            "drawing": "art drawing",
+            "craft": "handmade craft",
+            "handmade": "handcrafted item",
+            
+            // Food
+            "food": "fresh food",
+            "cake": "homemade cake",
+            "bread": "fresh bread",
+            "cooking": "cooked food",
+            "baking": "baked goods",
+            "honey": "natural honey",
+            "coffee": "coffee beans"
+        ]
         
-        // Beauty specific matches
-        if text.contains("face cream") {
-            matches.append("face cream")
-        }
-        if text.contains("makeup brush") {
-            matches.append("makeup brush")
-        }
-        if text.contains("nail polish") {
-            matches.append("nail polish")
-        }
-        if text.contains("hair dryer") {
-            matches.append("hair dryer")
-        }
-        
-        // Fashion specific matches
-        if text.contains("leather wallet") {
-            matches.append("leather wallet")
-        }
-        if text.contains("silk scarf") {
-            matches.append("silk scarf")
-        }
-        if text.contains("sunglasses") {
-            matches.append("sunglasses")
-        }
-        if text.contains("watch") {
-            matches.append("watch")
-        }
-        
-        // Pet specific matches
-        if text.contains("pet bed") {
-            matches.append("pet bed")
-        }
-        if text.contains("cat tree") {
-            matches.append("cat tree")
-        }
-        if text.contains("dog leash") {
-            matches.append("dog leash")
-        }
-        if text.contains("pet food bowl") {
-            matches.append("pet food bowl")
-        }
-        
-        // Art & Crafts specific matches
-        if text.contains("artificial flower") {
-            matches.append("artificial flower")
-        }
-        if text.contains("succulent plant") {
-            matches.append("succulent plant")
-        }
-        if text.contains("rose bouquet") {
-            matches.append("rose bouquet")
-        }
-        if text.contains("tulip") {
-            matches.append("tulip")
-        }
-        if text.contains("orchid") {
-            matches.append("orchid")
+        // Find the most specific category match
+        for keyword in keywords {
+            if let category = categoryMap[keyword] {
+                return category.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            }
         }
         
-        // Food specific matches
-        if text.contains("sourdough bread") {
-            matches.append("sourdough bread")
-        }
-        if text.contains("raw honey") {
-            matches.append("raw honey")
-        }
-        if text.contains("coffee beans") {
-            matches.append("coffee beans")
-        }
-        if text.contains("chocolate truffles") {
-            matches.append("chocolate truffles")
+        // If no specific match, use the first keyword with a descriptive modifier
+        if let firstKeyword = keywords.first {
+            return "\(firstKeyword) product".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         }
         
-        return matches
+        return nil
+    }
+    
+    private func generateFallbackSearchTerm(keywords: [String], name: String) -> String? {
+        guard !keywords.isEmpty else { return nil }
+        
+        // Use the most distinctive keyword from the product name
+        let distinctiveKeywords = keywords.filter { keyword in
+            // Prefer longer, more specific words
+            keyword.count > 4 && !["item", "product", "thing", "stuff"].contains(keyword)
+        }
+        
+        if let bestKeyword = distinctiveKeywords.first {
+            return bestKeyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        }
+        
+        // Fallback to first keyword
+        return keywords.first?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    }
+    
+    private func detectProductCategory(from name: String, description: String) -> String {
+        let text = "\(name) \(description)".lowercased()
+        
+        // More specific category detection based on actual product content
+        if text.contains("rose") || text.contains("tulip") || text.contains("orchid") || text.contains("succulent") {
+            return "flower"
+        }
+        if text.contains("lamp") || text.contains("pillow") || text.contains("cushion") || text.contains("vase") || text.contains("mirror") || text.contains("clock") {
+            return "home decor"
+        }
+        if text.contains("wireless") || text.contains("bluetooth") || text.contains("usb") || text.contains("charger") || text.contains("headphones") || text.contains("speaker") {
+            return "electronics"
+        }
+        if text.contains("makeup") || text.contains("cream") || text.contains("nail") || text.contains("hair") || text.contains("brush") {
+            return "beauty"
+        }
+        if text.contains("wallet") || text.contains("scarf") || text.contains("sunglasses") || text.contains("watch") || text.contains("jewelry") || text.contains("bag") {
+            return "fashion"
+        }
+        if text.contains("pet") || text.contains("dog") || text.contains("cat") || text.contains("bed") || text.contains("toy") || text.contains("leash") {
+            return "pet supplies"
+        }
+        if text.contains("art") || text.contains("painting") || text.contains("drawing") || text.contains("craft") || text.contains("handmade") {
+            return "art"
+        }
+        if text.contains("food") || text.contains("cake") || text.contains("bread") || text.contains("cooking") || text.contains("baking") || text.contains("honey") || text.contains("coffee") {
+            return "food"
+        }
+        
+        return "product"
+    }
+    
+    private func getSecondaryTerm(for category: String) -> String {
+        switch category {
+        case "flower": return "plant"
+        case "home decor": return "furniture"
+        case "electronics": return "technology"
+        case "beauty": return "cosmetics"
+        case "fashion": return "accessories"
+        case "pet": return "animal"
+        case "art": return "creative"
+        case "food": return "cooking"
+        default: return "item"
+        }
     }
     
     private func generatePrimarySearch(_ keywords: [String]) -> String? {
@@ -376,36 +366,191 @@ class ProductImageService: ObservableObject {
         }
     }
     
-    private func fetchFromAPIs(apis: [String], completion: @escaping (UIImage?) -> Void) {
-        guard !apis.isEmpty else {
-            completion(nil)
+    private func fetchFromMultipleAPIs(apis: [String], product: Product, completion: @escaping (UIImage?) -> Void) {
+        print("🌐 Fetching from \(apis.count) APIs")
+        
+        // Try each API in sequence until one succeeds
+        fetchFromAPIs(apis: apis, index: 0, product: product, completion: completion)
+    }
+    
+    private func fetchFromAPIs(apis: [String], index: Int, product: Product, completion: @escaping (UIImage?) -> Void) {
+        guard index < apis.count else {
+            print("❌ All APIs failed, generating unique local fallback image for: \(product.name ?? "Unknown")")
+            // Generate a unique local fallback image as ultimate backup
+            let fallbackImage = generateLocalFallbackImage(for: product)
+            completion(fallbackImage)
             return
         }
         
-        let currentAPI = apis[0]
-        let remainingAPIs = Array(apis.dropFirst())
+        let apiURL = apis[index]
+        print("🌐 Trying API \(index + 1)/\(apis.count): \(apiURL)")
         
-        guard let url = URL(string: currentAPI) else {
-            if !remainingAPIs.isEmpty {
-                fetchFromAPIs(apis: remainingAPIs, completion: completion)
-            } else {
-                completion(nil)
-            }
+        guard let url = URL(string: apiURL) else {
+            print("❌ Invalid URL: \(apiURL)")
+            fetchFromAPIs(apis: apis, index: index + 1, product: product, completion: completion)
             return
         }
         
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data, let image = UIImage(data: data) {
+        // Create a URLSession task with timeout
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ Network error for API \(index + 1): \(error.localizedDescription)")
+                    self.fetchFromAPIs(apis: apis, index: index + 1, product: product, completion: completion)
+                    return
+                }
+                
+                guard let data = data, let image = UIImage(data: data) else {
+                    print("❌ Invalid image data from API \(index + 1)")
+                    self.fetchFromAPIs(apis: apis, index: index + 1, product: product, completion: completion)
+                    return
+                }
+                
+                print("✅ Successfully fetched image from API \(index + 1) for: \(product.name ?? "Unknown")")
                 completion(image)
-            } else {
-                // Try next API if available
-                if !remainingAPIs.isEmpty {
-                    self.fetchFromAPIs(apis: remainingAPIs, completion: completion)
-                } else {
-                    completion(nil)
+            }
+        }
+        
+        task.resume()
+    }
+    
+    private func generateLocalFallbackImage() -> UIImage {
+        print("🎨 Generating local fallback image")
+        
+        let size = CGSize(width: 400, height: 300)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        let image = renderer.image { context in
+            // Background gradient with more vibrant colors
+            let colors = [
+                UIColor(red: 0.2, green: 0.6, blue: 0.9, alpha: 1.0).cgColor,
+                UIColor(red: 0.1, green: 0.4, blue: 0.8, alpha: 1.0).cgColor
+            ]
+            let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 1])!
+            
+            context.cgContext.drawLinearGradient(
+                gradient,
+                start: CGPoint(x: 0, y: 0),
+                end: CGPoint(x: 0, y: size.height),
+                options: []
+            )
+            
+            // Add subtle pattern overlay
+            let patternColor = UIColor.white.withAlphaComponent(0.1)
+            context.cgContext.setFillColor(patternColor.cgColor)
+            
+            for i in stride(from: 0, to: size.width, by: 20) {
+                for j in stride(from: 0, to: size.height, by: 20) {
+                    let rect = CGRect(x: i, y: j, width: 2, height: 2)
+                    context.cgContext.fillEllipse(in: rect)
                 }
             }
-        }.resume()
+            
+            // Product icon with better styling
+            let iconSize: CGFloat = 100
+            let iconRect = CGRect(
+                x: (size.width - iconSize) / 2,
+                y: (size.height - iconSize) / 2 - 30,
+                width: iconSize,
+                height: iconSize
+            )
+            
+            // Use a more appropriate icon
+            let icon = UIImage(systemName: "cube.box.fill") ?? UIImage(systemName: "photo") ?? UIImage(systemName: "star.fill")!
+            icon.withTintColor(.white, renderingMode: .alwaysOriginal)
+                .draw(in: iconRect)
+            
+            // Add a subtle shadow effect
+            context.cgContext.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.3).cgColor)
+            
+            // Text with better styling
+            let text = "Product Image"
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 20, weight: .medium),
+                .foregroundColor: UIColor.white
+            ]
+            
+            let textSize = text.size(withAttributes: attributes)
+            let textRect = CGRect(
+                x: (size.width - textSize.width) / 2,
+                y: iconRect.maxY + 20,
+                width: textSize.width,
+                height: textSize.height
+            )
+            
+            // Remove shadow for text
+            context.cgContext.setShadow(offset: .zero, blur: 0, color: nil)
+            text.draw(in: textRect, withAttributes: attributes)
+            
+            // Add a subtle border
+            context.cgContext.setStrokeColor(UIColor.white.withAlphaComponent(0.3).cgColor)
+            context.cgContext.setLineWidth(1)
+            context.cgContext.stroke(CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        }
+        
+        return image
+    }
+    
+    private func generateLocalFallbackImage(for product: Product) -> UIImage {
+        print("🎨 Generating unique local fallback image for: \(product.name ?? "Unknown")")
+        
+        let size = CGSize(width: 400, height: 300)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        // Generate unique colors based on product name
+        let nameHash = abs((product.name ?? "Unknown").hashValue)
+        let hue1 = CGFloat(nameHash % 360) / 360.0
+        let hue2 = CGFloat((nameHash + 180) % 360) / 360.0
+        
+        let image = renderer.image { context in
+            // Background gradient with unique colors based on product name
+            let colors = [
+                UIColor(hue: hue1, saturation: 0.7, brightness: 0.9, alpha: 1.0).cgColor,
+                UIColor(hue: hue2, saturation: 0.8, brightness: 0.7, alpha: 1.0).cgColor
+            ]
+            let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 1])!
+            
+            context.cgContext.drawLinearGradient(
+                gradient,
+                start: CGPoint(x: 0, y: 0),
+                end: CGPoint(x: size.width, y: size.height),
+                options: []
+            )
+            
+            // Add product name as text
+            let productName = product.name ?? "Product"
+            let text = "\(productName.prefix(15))"
+            
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: 24),
+                .foregroundColor: UIColor.white,
+                .strokeColor: UIColor.black,
+                .strokeWidth: -2.0
+            ]
+            
+            let textSize = text.size(withAttributes: attributes)
+            let textRect = CGRect(
+                x: (size.width - textSize.width) / 2,
+                y: (size.height - textSize.height) / 2,
+                width: textSize.width,
+                height: textSize.height
+            )
+            
+            text.draw(in: textRect, withAttributes: attributes)
+            
+            // Add a subtle pattern overlay
+            let patternColor = UIColor.white.withAlphaComponent(0.1)
+            patternColor.setFill()
+            
+            for i in stride(from: 0, to: size.width, by: 20) {
+                for j in stride(from: 0, to: size.height, by: 20) {
+                    let rect = CGRect(x: i, y: j, width: 2, height: 2)
+                    context.cgContext.fillEllipse(in: rect)
+                }
+            }
+        }
+        
+        return image
     }
     
     // MARK: - Cache Management
