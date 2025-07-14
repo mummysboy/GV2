@@ -14,7 +14,7 @@ struct ProductMarketplaceView: View {
     @State private var selectedCategory = "All"
     @State private var selectedProduct: Product?
     
-    let categories = ["All", "Creative", "Home", "Pet Care", "Tech", "Beauty", "Fashion", "Food"]
+    let categories = ["All", "🛍️ Products", "🏠 Home & Garden", "💻 Tech & Gadgets", "💄 Beauty & Health", "👕 Fashion & Style", "🐕 Pet Supplies", "🎨 Art & Crafts"]
     
     var body: some View {
         NavigationView {
@@ -26,17 +26,22 @@ struct ProductMarketplaceView: View {
                             Image(systemName: "sparkles")
                                 .foregroundColor(.appAccent)
                             Text("Ask AI to find products...")
-                                .foregroundColor(.appGray)
+                                .foregroundColor(.appTextSecondary)
                             Spacer()
                         }
-                        .padding()
-                        .background(Color.appGrayLight)
-                        .cornerRadius(12)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(Color.appSurfaceSecondary)
+                        .cornerRadius(16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.appBorder, lineWidth: 1)
+                        )
                         .padding(.horizontal)
                     }
                     .padding(.top)
                     
-                    // Trending Categories
+                    // Product Categories
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(categories, id: \.self) { category in
@@ -46,16 +51,22 @@ struct ProductMarketplaceView: View {
                                     Text(category)
                                         .font(.caption)
                                         .fontWeight(.medium)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                                                                                            .background(selectedCategory == category ? Color.appAccent : Color.appAccentLight)
-                                .foregroundColor(selectedCategory == category ? .appWhite : .appAccent)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 10)
+                                        .background(selectedCategory == category ? Color.appAccent : Color.appSurfaceSecondary)
+                                        .foregroundColor(selectedCategory == category ? .white : .appText)
                                         .cornerRadius(20)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(selectedCategory == category ? Color.clear : Color.appBorder, lineWidth: 1)
+                                        )
+                                        .shadow(color: selectedCategory == category ? .appAccent.opacity(0.3) : .clear, radius: 4, x: 0, y: 2)
                                 }
                             }
                         }
                         .padding(.horizontal)
                     }
+                    .padding(.vertical, 12)
                     
                     // Products Grid
                     LazyVGrid(columns: [
@@ -87,11 +98,35 @@ struct ProductMarketplaceView: View {
     // TODO: Replace with actual location/zip filtering if available
     var filteredProducts: [Product] {
         let allProducts = Array(products)
-        let filteredByCategory = selectedCategory == "All" ? allProducts : allProducts.filter { ($0.productDescription ?? "").localizedCaseInsensitiveContains(selectedCategory) || ($0.name ?? "").localizedCaseInsensitiveContains(selectedCategory) }
+        let filteredByCategory = selectedCategory == "All" ? allProducts : allProducts.filter { product in
+            let category = getCategoryForProduct(product)
+            return category == selectedCategory
+        }
         if searchText.isEmpty {
             return filteredByCategory
         } else {
             return filteredByCategory.filter { ($0.name ?? "").localizedCaseInsensitiveContains(searchText) || ($0.productDescription ?? "").localizedCaseInsensitiveContains(searchText) }
+        }
+    }
+    
+    private func getCategoryForProduct(_ product: Product) -> String {
+        let name = product.name?.lowercased() ?? ""
+        let description = product.productDescription?.lowercased() ?? ""
+        
+        if name.contains("home") || name.contains("garden") || name.contains("decor") || name.contains("lamp") || name.contains("pillow") || name.contains("clock") || description.contains("home") || description.contains("garden") || description.contains("decor") {
+            return "🏠 Home & Garden"
+        } else if name.contains("tech") || name.contains("phone") || name.contains("wireless") || name.contains("bluetooth") || name.contains("usb") || description.contains("tech") || description.contains("wireless") || description.contains("bluetooth") {
+            return "💻 Tech & Gadgets"
+        } else if name.contains("beauty") || name.contains("makeup") || name.contains("cream") || name.contains("nail") || name.contains("hair") || description.contains("beauty") || description.contains("makeup") || description.contains("cream") {
+            return "💄 Beauty & Health"
+        } else if name.contains("fashion") || name.contains("wallet") || name.contains("scarf") || name.contains("sunglasses") || name.contains("watch") || description.contains("fashion") || description.contains("accessory") {
+            return "👕 Fashion & Style"
+        } else if name.contains("pet") || name.contains("dog") || name.contains("cat") || description.contains("pet") || description.contains("dog") || description.contains("cat") {
+            return "🐕 Pet Supplies"
+        } else if name.contains("art") || name.contains("craft") || name.contains("flower") || name.contains("rose") || name.contains("succulent") || name.contains("tulip") || name.contains("orchid") || description.contains("art") || description.contains("craft") || description.contains("flower") {
+            return "🎨 Art & Crafts"
+        } else {
+            return "🛍️ Products"
         }
     }
     

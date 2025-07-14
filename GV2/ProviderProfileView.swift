@@ -27,15 +27,11 @@ struct ProviderProfileView: View {
                     VStack(spacing: 16) {
                         // Profile image and basic info
                         HStack(spacing: 16) {
-                            Circle()
-                                .fill(Color.appAccentLight)
-                                .frame(width: 80, height: 80)
-                                .overlay(
-                                    Text(String(provider.name?.prefix(1) ?? "U"))
-                                        .font(.title)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.appAccent)
-                                )
+                            ProfilePictureView(
+                                name: provider.name ?? "Unknown Provider",
+                                size: 80,
+                                showBorder: true
+                            )
                             
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {

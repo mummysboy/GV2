@@ -18,6 +18,7 @@ extension Color {
     static let appGray = Color(hex: "#9B9B9B") // Medium gray for form borders
     static let appGrayLight = Color(hex: "#E0E0E0") // Light gray for dividers
     static let appGrayDark = Color(hex: "#4A4A4A") // Dark gray for emphasis
+    static let appGrayDarker = Color(hex: "#2A2A2A") // Darker gray for borders and emphasis
     
     // Subtle Color Additions - Optional accents
     static let appInfo = Color(hex: "#C7E1F2") // Pale blue for info boxes

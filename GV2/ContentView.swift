@@ -187,12 +187,41 @@ struct HomeFeedView: View {
                             .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: { showingCreateGig = true }) {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.appAccent)
+                            Image(systemName: "plus")
+                                .foregroundColor(.appGrayDarker)
                                 .font(.title2)
-                                .shadow(color: .appAccent.opacity(0.3), radius: 2, x: 0, y: 1)
+                                .fontWeight(.semibold)
+                                .frame(width: 32, height: 32)
+                                .background(Color.appSurfaceSecondary)
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.appGrayDarker, lineWidth: 1.5)
+                                )
                         }
                     }
+                    
+                    #if DEBUG
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            PersistenceController.forceRegenerateSampleData()
+                        }) {
+                            Image(systemName: "arrow.clockwise")
+                                .foregroundColor(.appVerification)
+                                .font(.title2)
+                        }
+                    }
+                    
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            PersistenceController.debugCheckProfilePictures()
+                        }) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.appAccent)
+                                .font(.title2)
+                        }
+                    }
+                    #endif
                 }
         }
         .sheet(isPresented: $showingAIChat) {
@@ -212,16 +241,12 @@ struct GigCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header with provider info
             HStack {
-                Circle()
-                    .fill(Color.appAccent)
-                    .frame(width: 48, height: 48)
-                    .overlay(
-                        Text(String(gig.provider?.name?.prefix(1) ?? "U"))
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                    )
-                    .shadow(color: .appAccent.opacity(0.3), radius: 4, x: 0, y: 2)
+                ProfilePictureView(
+                    name: gig.provider?.name ?? "Unknown Provider",
+                    size: 48,
+                    showBorder: true
+                )
+                .shadow(color: .appShadow, radius: 4, x: 0, y: 2)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(gig.provider?.name ?? "Unknown Provider")
@@ -919,15 +944,24 @@ struct GigDetailView: View {
                     // Provider info - Clickable
                     NavigationLink(destination: ProviderProfileView(provider: gig.provider ?? User())) {
                         HStack {
-                            Circle()
-                                .fill(Color.appAccentLight)
-                                .frame(width: 50, height: 50)
-                                .overlay(
-                                    Text(String(gig.provider?.name?.prefix(1) ?? "U"))
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.appAccent)
-                                )
+                            if let avatarData = gig.provider?.avatar,
+                               let uiImage = UIImage(data: avatarData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(Circle())
+                            } else {
+                                Circle()
+                                    .fill(Color.appAccentLight)
+                                    .frame(width: 50, height: 50)
+                                    .overlay(
+                                        Text(String(gig.provider?.name?.prefix(1) ?? "U"))
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundColor(.appAccent)
+                                    )
+                            }
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(gig.provider?.name ?? "Unknown Provider")

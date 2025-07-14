@@ -7,6 +7,7 @@
 
 import CoreData
 import CloudKit
+import UIKit
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -75,6 +76,7 @@ struct PersistenceController {
             PersistenceController.createSampleData(in: container.viewContext)
             do {
                 try container.viewContext.save()
+                print("✅ Sample data created successfully with profile pictures")
             } catch {
                 print("Failed to save sample data: \(error.localizedDescription)")
             }
@@ -106,10 +108,111 @@ struct PersistenceController {
         }
     }
     
+    // MARK: - Profile Picture Generation
+    static func generateProfilePicture(for name: String, size: CGSize = CGSize(width: 200, height: 200)) -> Data? {
+        print("🎨 Generating real profile picture for: \(name)")
+        
+        // Use the ImageCacheService to fetch real profile pictures
+        let semaphore = DispatchSemaphore(value: 0)
+        var resultData: Data?
+        
+        ImageCacheService.shared.fetchProfilePicture(for: name) { image in
+            if let image = image, let data = image.jpegData(compressionQuality: 0.8) {
+                resultData = data
+                print("📸 Real profile picture generated for \(name): \(data.count) bytes")
+            } else {
+                print("❌ Failed to fetch real profile picture for \(name)")
+                // Fallback to generated avatar
+                resultData = generateFallbackAvatar(for: name, size: size)
+            }
+            semaphore.signal()
+        }
+        
+        // Wait for the async operation to complete
+        _ = semaphore.wait(timeout: .now() + 10.0) // 10 second timeout
+        
+        return resultData
+    }
+    
+    // MARK: - Fallback Avatar Generation
+    private static func generateFallbackAvatar(for name: String, size: CGSize = CGSize(width: 200, height: 200)) -> Data? {
+        print("🔄 Using fallback avatar for: \(name)")
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        let image = renderer.image { context in
+            let rect = CGRect(origin: .zero, size: size)
+            
+            // Generate a consistent color based on the name
+            let colors: [UIColor] = [
+                UIColor(red: 0.2, green: 0.6, blue: 0.9, alpha: 1.0), // Blue
+                UIColor(red: 0.9, green: 0.4, blue: 0.6, alpha: 1.0), // Pink
+                UIColor(red: 0.4, green: 0.8, blue: 0.6, alpha: 1.0), // Green
+                UIColor(red: 0.9, green: 0.6, blue: 0.2, alpha: 1.0), // Orange
+                UIColor(red: 0.6, green: 0.4, blue: 0.9, alpha: 1.0), // Purple
+                UIColor(red: 0.9, green: 0.2, blue: 0.3, alpha: 1.0), // Red
+                UIColor(red: 0.3, green: 0.7, blue: 0.8, alpha: 1.0), // Teal
+                UIColor(red: 0.8, green: 0.5, blue: 0.2, alpha: 1.0)  // Brown
+            ]
+            
+            let colorIndex = abs(name.hashValue) % colors.count
+            let backgroundColor = colors[colorIndex]
+            
+            // Fill background
+            backgroundColor.setFill()
+            context.fill(rect)
+            
+            // Create a subtle gradient overlay
+            let gradientLayer = CAGradientLayer()
+            gradientLayer.frame = rect
+            gradientLayer.colors = [
+                backgroundColor.cgColor,
+                backgroundColor.withAlphaComponent(0.8).cgColor
+            ]
+            gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+            gradientLayer.endPoint = CGPoint(x: 1, y: 1)
+            
+            if let gradientImage = gradientLayer.renderAsImage() {
+                gradientImage.draw(in: rect)
+            }
+            
+            // Add initials
+            let initials = name.components(separatedBy: " ").compactMap { $0.first }.prefix(2).map(String.init).joined()
+            
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: size.width * 0.3, weight: .semibold),
+                .foregroundColor: UIColor.white
+            ]
+            
+            let textSize = initials.size(withAttributes: attributes)
+            let textRect = CGRect(
+                x: (size.width - textSize.width) / 2,
+                y: (size.height - textSize.height) / 2,
+                width: textSize.width,
+                height: textSize.height
+            )
+            
+            // Add a subtle shadow
+            context.cgContext.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.3).cgColor)
+            
+            initials.draw(in: textRect, withAttributes: attributes)
+            
+            // Add a subtle border
+            context.cgContext.setLineWidth(2)
+            context.cgContext.setStrokeColor(UIColor.white.withAlphaComponent(0.3).cgColor)
+            context.cgContext.addEllipse(in: rect.insetBy(dx: 1, dy: 1))
+            context.cgContext.strokePath()
+        }
+        
+        let imageData = image.jpegData(compressionQuality: 0.8)
+        print("📸 Fallback avatar generated for \(name): \(imageData?.count ?? 0) bytes")
+        return imageData
+    }
+    
     // MARK: - Sample Data (Development Only)
     static func createSampleData(in context: NSManagedObjectContext) {
+        print("🔄 Creating sample data with profile pictures...")
         #if DEBUG
-        // Create sample users
+        // Create sample users with profile pictures
         let users = [
             ("Sarah Chen", "San Francisco, CA", "Professional photographer with 5+ years experience", true, 4.8, 127),
             ("Mike Rodriguez", "Los Angeles, CA", "Certified personal trainer and nutrition coach", true, 4.9, 89),
@@ -134,6 +237,13 @@ struct PersistenceController {
             user.totalReviews = Int32(reviews)
             user.createdAt = Date()
             user.updatedAt = Date()
+            
+            // Generate and assign profile picture
+            if let profileImageData = generateProfilePicture(for: name) {
+                user.avatar = profileImageData
+                print("📸 Generated profile picture for \(name)")
+            }
+            
             createdUsers.append(user)
         }
         
@@ -194,10 +304,82 @@ struct PersistenceController {
         }
         #endif
     }
+    
+    // MARK: - Development Helper Functions
+    #if DEBUG
+    static func forceRegenerateSampleData() {
+        let context = shared.container.viewContext
+        
+        // Delete all existing data
+        let fetchRequests: [NSFetchRequest<NSFetchRequestResult>] = [
+            User.fetchRequest(),
+            Gig.fetchRequest(),
+            Review.fetchRequest(),
+            Product.fetchRequest()
+        ]
+        
+        for fetchRequest in fetchRequests {
+            do {
+                let existingData = try context.fetch(fetchRequest)
+                for object in existingData {
+                    context.delete(object as! NSManagedObject)
+                }
+                print("🗑️ Cleared existing data")
+            } catch {
+                print("Error clearing data: \(error)")
+            }
+        }
+        
+        // Create new sample data
+        createSampleData(in: context)
+        
+        do {
+            try context.save()
+            print("✅ Sample data regenerated successfully with profile pictures!")
+        } catch {
+            print("Failed to save regenerated sample data: \(error)")
+        }
+    }
+    
+    static func debugCheckProfilePictures() {
+        let context = shared.container.viewContext
+        let request: NSFetchRequest<User> = User.fetchRequest()
+        
+        do {
+            let users = try context.fetch(request)
+            print("🔍 Found \(users.count) users in database")
+            
+            for user in users {
+                let hasAvatar = user.avatar != nil
+                let avatarSize = user.avatar?.count ?? 0
+                print("👤 \(user.name ?? "Unknown"): Avatar = \(hasAvatar ? "YES" : "NO"), Size = \(avatarSize) bytes")
+            }
+            
+            // Test profile picture generation
+            if let testImageData = generateProfilePicture(for: "Test User") {
+                print("✅ Test profile picture generated: \(testImageData.count) bytes")
+            } else {
+                print("❌ Failed to generate test profile picture")
+            }
+        } catch {
+            print("❌ Error fetching users: \(error)")
+        }
+    }
+    #endif
 }
 
 // MARK: - Notification Names
 extension Notification.Name {
     static let coreDataLoadFailed = Notification.Name("coreDataLoadFailed")
     static let coreDataSaveFailed = Notification.Name("coreDataSaveFailed")
+}
+
+// MARK: - CAGradientLayer Extension
+extension CAGradientLayer {
+    func renderAsImage() -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { context in
+            render(in: context.cgContext)
+        }
+    }
 }
