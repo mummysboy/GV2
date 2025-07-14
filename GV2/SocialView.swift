@@ -170,12 +170,7 @@ struct SocialActivityCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 // Friend Avatar
-                Image(systemName: "person.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.blue)
-                    .frame(width: 40, height: 40)
-                    .background(Color.blue.opacity(0.1))
-                    .clipShape(Circle())
+                ProfilePictureView(name: activity.friendName, size: 40, showBorder: false)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack {

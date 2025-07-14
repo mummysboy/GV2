@@ -28,8 +28,8 @@ struct ContentView: View {
                 TabView(selection: $selectedTab) {
                     HomeFeedView()
                         .tabItem {
-                            Image(systemName: "house.fill")
-                            Text("Home")
+                            Image(systemName: "wrench.and.screwdriver.fill")
+                            Text("Gigs")
                         }
                         .tag(0)
                     
@@ -43,7 +43,7 @@ struct ContentView: View {
                     MessagesView()
                         .tabItem {
                             Image(systemName: "message.fill")
-                            Text("Messages")
+                            Text("Chat")
                         }
                         .tag(2)
                     
@@ -64,6 +64,11 @@ struct ContentView: View {
                 .accentColor(.appVerification)
                 .preferredColorScheme(.light)
                 .background(Color.appBackground)
+                .onAppear {
+                    // Reduce tab bar item spacing
+                    UITabBar.appearance().itemSpacing = -10
+                    UITabBar.appearance().itemPositioning = .centered
+                }
             } else {
                 OnboardingView()
             }
@@ -131,7 +136,7 @@ struct HomeFeedView: View {
                 Button(action: { showingAIChat = true }) {
                     HStack {
                         Image(systemName: "sparkles")
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(.appLavenderDark)
                         Text("Ask AI to find services...")
                             .foregroundColor(.appTextSecondary)
                         Spacer()
@@ -236,7 +241,7 @@ struct GigCardView: View {
                     Text("$\(String(format: "%.0f", gig.price))")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.appAccent)
+                        .foregroundColor(.appText)
                     
                     Text(gig.priceType ?? "per service")
                         .font(.caption)
@@ -244,8 +249,12 @@ struct GigCardView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Color.appAccent.opacity(0.1))
+                .background(Color.appSurfaceSecondary)
                 .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.appBorder, lineWidth: 1)
+                )
             }
             
             // Gig content
@@ -308,16 +317,17 @@ struct GigCardView: View {
                 Button(action: {}) {
                     HStack(spacing: 6) {
                         Image(systemName: "message")
+                            .foregroundColor(.appLavenderDark)
                         Text("Message")
+                            .foregroundColor(.appLavenderDark)
                     }
                     .font(.caption)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
-                    .background(Color.appAccent)
-                    .foregroundColor(.white)
+                    .background(Color.appLavender)
                     .cornerRadius(12)
-                    .shadow(color: .appAccent.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .shadow(color: Color.appLavenderDark.opacity(0.15), radius: 4, x: 0, y: 2)
                 }
             }
 
@@ -1003,13 +1013,14 @@ struct GigDetailView: View {
                         Button(action: { showingChat = true }) {
                             HStack {
                                 Image(systemName: "message")
+                                    .foregroundColor(.appLavenderDark)
                                 Text("Message Provider")
+                                    .foregroundColor(.appLavenderDark)
                             }
                             .font(.headline)
-                            .foregroundColor(.appWhite)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.appAccent)
+                            .background(Color.appLavender)
                             .cornerRadius(12)
                         }
                         
