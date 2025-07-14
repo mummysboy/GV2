@@ -204,7 +204,7 @@ struct HomeFeedView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Gig")
+            .navigationTitle("Find services")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 // All toolbar items removed as requested
@@ -455,7 +455,7 @@ struct MessagesView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "message.circle")
                         .font(.system(size: 48))
-                        .foregroundColor(.appAccent)
+                        .foregroundColor(.appLavender)
                     
                     Text("No messages yet")
                         .font(.title2)
