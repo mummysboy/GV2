@@ -168,7 +168,7 @@ struct ConnectionRow: View {
 
 struct InviteFriendsView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var inviteMessage = "Join me on GV2! I'm using this awesome gig marketplace app. Check it out!"
+    @State private var inviteMessage = "Join me on Gig! I'm using this awesome gig marketplace app. Check it out!"
     
     var body: some View {
         NavigationView {
@@ -183,7 +183,7 @@ struct InviteFriendsView: View {
                         .font(.title2)
                         .fontWeight(.semibold)
                     
-                    Text("Share GV2 with your friends and see their activity in your social feed.")
+                    Text("Share Gig with your friends and see their activity in your social feed.")
                         .multilineTextAlignment(.center)
                         .foregroundColor(.secondary)
                         .padding(.horizontal)
@@ -206,7 +206,7 @@ struct InviteFriendsView: View {
                     ShareButton(
                         title: "Share via Message",
                         icon: "message",
-                        color: .green
+                        color: .appLavenderDark
                     ) {
                         shareViaMessage()
                     }
@@ -255,7 +255,7 @@ struct InviteFriendsView: View {
     
     private func copyLink() {
         // In a real app, this would copy the app store link
-        UIPasteboard.general.string = "https://apps.apple.com/app/gv2"
+        UIPasteboard.general.string = "https://apps.apple.com/app/gig"
         print("Link copied to clipboard")
     }
 }

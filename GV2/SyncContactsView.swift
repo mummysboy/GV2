@@ -21,7 +21,7 @@ struct SyncContactsView: View {
                             .font(.title2)
                             .fontWeight(.semibold)
                         
-                        Text("Find friends who are already using GV2 and see their activity in your social feed.")
+                        Text("Find friends who are already using Gig and see their activity in your social feed.")
                             .multilineTextAlignment(.center)
                             .foregroundColor(.secondary)
                             .padding(.horizontal)

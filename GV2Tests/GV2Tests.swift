@@ -1,14 +1,14 @@
 //
-//  GV2Tests.swift
-//  GV2Tests
+//  GigTests.swift
+//  GigTests
 //
 //  Created by Isaac Hirsch on 7/9/25.
 //
 
 import XCTest
-@testable import GV2
+@testable import Gig
 
-final class GV2Tests: XCTestCase {
+final class GigTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

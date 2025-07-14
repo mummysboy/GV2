@@ -47,7 +47,7 @@ struct PersistenceController {
             
             // Configure CloudKit container
             description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
-                containerIdentifier: "iCloud.com.yourcompany.GV2"
+                containerIdentifier: "iCloud.com.yourcompany.Gig"
             )
         }
         

@@ -1,13 +1,13 @@
 //
-//  GV2UITestsLaunchTests.swift
-//  GV2UITests
+//  GigUITestsLaunchTests.swift
+//  GigUITests
 //
 //  Created by Isaac Hirsch on 7/9/25.
 //
 
 import XCTest
 
-final class GV2UITestsLaunchTests: XCTestCase {
+final class GigUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

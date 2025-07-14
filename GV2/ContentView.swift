@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  GV2
+//  Gig
 //
 //  Created by Isaac Hirsch on 7/9/25.
 //
@@ -575,7 +575,7 @@ struct ProfileView: View {
                         Button(action: { showingCreateGig = true }) {
                             HStack {
                                 Image(systemName: "plus.circle")
-                                Text("Create New Gig")
+                                Text("Create New Service")
                             }
                             .font(.headline)
                             .foregroundColor(Color(hex: "#3A3A3C"))
@@ -601,7 +601,7 @@ struct ProfileView: View {
                         Button(action: { showingGigManagement = true }) {
                             HStack {
                                 Image(systemName: "briefcase")
-                                Text("Manage Gigs")
+                                Text("Manage Services")
                             }
                             .font(.headline)
                             .foregroundColor(Color(hex: "#3A3A3C"))
@@ -640,7 +640,7 @@ struct ProfileView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationTitle("Profile")
+            .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -1144,7 +1144,6 @@ struct GigDetailView: View {
         }
     }
 }
-
 
 
 #Preview {

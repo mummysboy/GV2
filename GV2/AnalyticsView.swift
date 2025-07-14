@@ -99,7 +99,7 @@ struct AnalyticsView: View {
                             change: "+15%",
                             isPositive: true,
                             icon: "message.fill",
-                            color: .purple
+                            color: .appLavenderDark
                         )
                         
                         MetricCard(
@@ -212,7 +212,7 @@ struct AnalyticsView: View {
                                 title: "Response Time Impact",
                                 description: "Gigs with response times under 2 hours get 3x more bookings. Try to respond quickly!",
                                 icon: "message.circle.fill",
-                                color: .purple
+                                color: .appLavenderDark
                             )
                         }
                         .padding(.horizontal)

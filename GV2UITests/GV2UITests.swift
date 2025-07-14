@@ -1,13 +1,13 @@
 //
-//  GV2UITests.swift
-//  GV2UITests
+//  GigUITests.swift
+//  GigUITests
 //
 //  Created by Isaac Hirsch on 7/9/25.
 //
 
 import XCTest
 
-final class GV2UITests: XCTestCase {
+final class GigUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

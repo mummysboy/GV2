@@ -1,6 +1,6 @@
 //
 //  ErrorHandling.swift
-//  GV2
+//  Gig
 //
 //  Created by Isaac Hirsch on 7/9/25.
 //

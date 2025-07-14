@@ -88,13 +88,14 @@ struct ProviderProfileView: View {
                             Button(action: { showingChat = true }) {
                                 HStack {
                                     Image(systemName: "message")
+                                        .foregroundColor(.appLavenderDark)
                                     Text("Message")
+                                        .foregroundColor(.appLavenderDark)
                                 }
                                 .font(.headline)
-                                .foregroundColor(.appWhite)
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color.appAccent)
+                                .background(Color.appLavender)
                                 .cornerRadius(12)
                             }
                             

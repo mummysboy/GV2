@@ -191,8 +191,8 @@ struct UserProfileView: View {
                         )
                         
                         ProfileOptionButton(
-                            title: "Manage Gigs",
-                            subtitle: "View, edit, promote your gigs",
+                            title: "Manage Services",
+                            subtitle: "View, edit, promote your services",
                             icon: "briefcase.circle",
                             action: { /* Navigate to gig management */ }
                         )
@@ -214,7 +214,7 @@ struct UserProfileView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationTitle("Profile")
+            .navigationTitle("Edit Profile")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

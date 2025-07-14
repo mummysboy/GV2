@@ -286,12 +286,27 @@ struct EngagementStat: View {
     let value: String
     let label: String
     
+    var iconColor: Color {
+        switch icon {
+        case "message":
+            return .appLavenderDark
+        case "heart":
+            return .red
+        case "eye":
+            return .blue
+        case "calendar":
+            return .green
+        default:
+            return .purple
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 2) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.caption2)
-                    .foregroundColor(.purple)
+                    .foregroundColor(iconColor)
                 
                 Text(value)
                     .font(.caption)

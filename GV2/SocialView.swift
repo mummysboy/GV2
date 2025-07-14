@@ -48,7 +48,7 @@ struct SocialView: View {
                 // Enhanced Social Activity Feed
                 SocialActivityFeed(filter: selectedFilter, selectedActivity: $selectedActivity, showingGigDetail: $showingGigDetail)
             }
-            .navigationTitle("Social")
+            .navigationTitle("Find trends")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {

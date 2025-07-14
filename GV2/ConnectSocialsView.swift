@@ -52,7 +52,7 @@ struct ConnectSocialsView: View {
                         .font(.title2)
                         .fontWeight(.semibold)
                     
-                    Text("Connect your social media accounts to find friends and see their activity on GV2.")
+                    Text("Connect your social media accounts to find friends and see their activity on Gig.")
                         .multilineTextAlignment(.center)
                         .foregroundColor(.secondary)
                         .padding(.horizontal)

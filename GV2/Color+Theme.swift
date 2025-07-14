@@ -33,6 +33,11 @@ extension Color {
     static let appVerification = Color(hex: "#007AFF") // iOS-style blue for verification
     static let appVerificationLight = Color(hex: "#5AC8FA") // Light blue for verification states
     
+    // Message Colors - Lavender theme
+    static let appLavender = Color(hex: "#E6E6FA") // Light lavender
+    static let appLavenderMedium = Color(hex: "#D8BFD8") // Medium lavender
+    static let appLavenderDark = Color(hex: "#9370DB") // Dark lavender for icons
+    
     // Legacy support - keeping these for backward compatibility
     static let appBlack = appText // Map to new text color
     static let appWhite = appSurface // Map to new surface color
