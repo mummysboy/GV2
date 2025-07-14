@@ -79,58 +79,279 @@ class ProductImageService: ObservableObject {
     }
     
     private func getProductImageAPIs(for name: String, description: String) -> [String] {
-        // Categorize product and return appropriate image APIs
-        let category = categorizeProduct(name: name, description: description)
+        // Extract specific keywords from product name and description
+        let searchTerms = extractSearchTerms(from: name, description: description)
         
-        switch category {
-        case "home":
-            return [
-                "https://source.unsplash.com/400x300/?home,decor,furniture",
-                "https://source.unsplash.com/400x300/?interior,design",
-                "https://picsum.photos/400/300?random=\(name.hashValue)"
-            ]
-        case "tech":
-            return [
-                "https://source.unsplash.com/400x300/?technology,gadgets",
-                "https://source.unsplash.com/400x300/?electronics,devices",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 1)"
-            ]
-        case "beauty":
-            return [
-                "https://source.unsplash.com/400x300/?beauty,cosmetics",
-                "https://source.unsplash.com/400x300/?makeup,skincare",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 2)"
-            ]
-        case "fashion":
-            return [
-                "https://source.unsplash.com/400x300/?fashion,clothing",
-                "https://source.unsplash.com/400x300/?accessories,style",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 3)"
-            ]
-        case "pet":
-            return [
-                "https://source.unsplash.com/400x300/?pet,animals",
-                "https://source.unsplash.com/400x300/?dogs,cats",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 4)"
-            ]
-        case "art":
-            return [
-                "https://source.unsplash.com/400x300/?art,crafts",
-                "https://source.unsplash.com/400x300/?flowers,plants",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 5)"
-            ]
-        case "food":
-            return [
-                "https://source.unsplash.com/400x300/?food,cooking",
-                "https://source.unsplash.com/400x300/?baking,ingredients",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 6)"
-            ]
-        default:
-            return [
-                "https://source.unsplash.com/400x300/?product",
-                "https://picsum.photos/400/300?random=\(name.hashValue + 7)"
-            ]
+        // Generate multiple API URLs with different search term combinations
+        var apis: [String] = []
+        
+        // Primary search with specific product terms
+        if let primarySearch = searchTerms.primary {
+            apis.append("https://source.unsplash.com/400x300/?\(primarySearch)")
         }
+        
+        // Secondary search with broader category terms
+        if let secondarySearch = searchTerms.secondary {
+            apis.append("https://source.unsplash.com/400x300/?\(secondarySearch)")
+        }
+        
+        // Fallback with general product terms
+        if let fallbackSearch = searchTerms.fallback {
+            apis.append("https://source.unsplash.com/400x300/?\(fallbackSearch)")
+        }
+        
+        // Final fallback with category
+        let category = categorizeProduct(name: name, description: description)
+        apis.append("https://source.unsplash.com/400x300/?\(category)")
+        
+        return apis
+    }
+    
+    private func extractSearchTerms(from name: String, description: String) -> (primary: String?, secondary: String?, fallback: String?) {
+        let text = "\(name) \(description)".lowercased()
+        
+        // Extract specific product keywords
+        let productKeywords = extractProductKeywords(from: text)
+        
+        // Generate search term combinations
+        let primary = generatePrimarySearch(productKeywords)
+        let secondary = generateSecondarySearch(productKeywords)
+        let fallback = generateFallbackSearch(productKeywords)
+        
+        return (primary: primary, secondary: secondary, fallback: fallback)
+    }
+    
+    private func extractProductKeywords(from text: String) -> [String] {
+        var keywords: [String] = []
+        
+        // Extract specific product types
+        let productTypes = [
+            "lamp", "pillow", "clock", "decor", "furniture", "cushion", "vase", "mirror",
+            "wireless", "bluetooth", "usb", "charger", "headphones", "speaker", "phone",
+            "makeup", "cream", "nail", "hair", "brush", "cosmetic", "skincare", "lotion",
+            "wallet", "scarf", "sunglasses", "watch", "jewelry", "bag", "shoes", "dress",
+            "pet", "dog", "cat", "bed", "toy", "food", "leash", "collar", "bowl",
+            "flower", "rose", "succulent", "tulip", "orchid", "plant", "art", "craft",
+            "bread", "honey", "coffee", "chocolate", "cake", "cooking", "baking", "food"
+        ]
+        
+        for type in productTypes {
+            if text.contains(type) {
+                keywords.append(type)
+            }
+        }
+        
+        // Extract materials and features
+        let materials = [
+            "leather", "silk", "cotton", "wood", "metal", "glass", "ceramic", "plastic",
+            "memory foam", "stainless steel", "organic", "natural", "premium", "handcrafted"
+        ]
+        
+        for material in materials {
+            if text.contains(material) {
+                keywords.append(material)
+            }
+        }
+        
+        // Extract colors if mentioned
+        let colors = [
+            "black", "white", "red", "blue", "green", "yellow", "pink", "purple", "brown", "gray"
+        ]
+        
+        for color in colors {
+            if text.contains(color) {
+                keywords.append(color)
+            }
+        }
+        
+        // Specific product matching for better accuracy
+        let specificMatches = getSpecificProductMatches(from: text)
+        keywords.append(contentsOf: specificMatches)
+        
+        return keywords
+    }
+    
+    private func getSpecificProductMatches(from text: String) -> [String] {
+        var matches: [String] = []
+        
+        // Home & Garden specific matches
+        if text.contains("table lamp") || text.contains("desk lamp") {
+            matches.append("table lamp")
+        }
+        if text.contains("floor lamp") {
+            matches.append("floor lamp")
+        }
+        if text.contains("throw pillow") || text.contains("cushion") {
+            matches.append("throw pillow")
+        }
+        if text.contains("wall clock") {
+            matches.append("wall clock")
+        }
+        if text.contains("vase") {
+            matches.append("vase")
+        }
+        if text.contains("mirror") {
+            matches.append("mirror")
+        }
+        
+        // Tech specific matches
+        if text.contains("wireless charger") {
+            matches.append("wireless charger")
+        }
+        if text.contains("bluetooth speaker") {
+            matches.append("bluetooth speaker")
+        }
+        if text.contains("usb cable") {
+            matches.append("usb cable")
+        }
+        if text.contains("phone case") {
+            matches.append("phone case")
+        }
+        
+        // Beauty specific matches
+        if text.contains("face cream") {
+            matches.append("face cream")
+        }
+        if text.contains("makeup brush") {
+            matches.append("makeup brush")
+        }
+        if text.contains("nail polish") {
+            matches.append("nail polish")
+        }
+        if text.contains("hair dryer") {
+            matches.append("hair dryer")
+        }
+        
+        // Fashion specific matches
+        if text.contains("leather wallet") {
+            matches.append("leather wallet")
+        }
+        if text.contains("silk scarf") {
+            matches.append("silk scarf")
+        }
+        if text.contains("sunglasses") {
+            matches.append("sunglasses")
+        }
+        if text.contains("watch") {
+            matches.append("watch")
+        }
+        
+        // Pet specific matches
+        if text.contains("pet bed") {
+            matches.append("pet bed")
+        }
+        if text.contains("cat tree") {
+            matches.append("cat tree")
+        }
+        if text.contains("dog leash") {
+            matches.append("dog leash")
+        }
+        if text.contains("pet food bowl") {
+            matches.append("pet food bowl")
+        }
+        
+        // Art & Crafts specific matches
+        if text.contains("artificial flower") {
+            matches.append("artificial flower")
+        }
+        if text.contains("succulent plant") {
+            matches.append("succulent plant")
+        }
+        if text.contains("rose bouquet") {
+            matches.append("rose bouquet")
+        }
+        if text.contains("tulip") {
+            matches.append("tulip")
+        }
+        if text.contains("orchid") {
+            matches.append("orchid")
+        }
+        
+        // Food specific matches
+        if text.contains("sourdough bread") {
+            matches.append("sourdough bread")
+        }
+        if text.contains("raw honey") {
+            matches.append("raw honey")
+        }
+        if text.contains("coffee beans") {
+            matches.append("coffee beans")
+        }
+        if text.contains("chocolate truffles") {
+            matches.append("chocolate truffles")
+        }
+        
+        return matches
+    }
+    
+    private func generatePrimarySearch(_ keywords: [String]) -> String? {
+        guard !keywords.isEmpty else { return nil }
+        
+        // Use the most specific keywords for primary search
+        let specificKeywords = keywords.prefix(3).joined(separator: ",")
+        return specificKeywords.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    }
+    
+    private func generateSecondarySearch(_ keywords: [String]) -> String? {
+        guard keywords.count > 1 else { return nil }
+        
+        // Use broader category terms for secondary search
+        let categoryKeywords = getCategoryKeywords(from: keywords)
+        return categoryKeywords.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    }
+    
+    private func generateFallbackSearch(_ keywords: [String]) -> String? {
+        guard !keywords.isEmpty else { return nil }
+        
+        // Use the most common keyword for fallback
+        let fallbackKeyword = keywords.first ?? "product"
+        return fallbackKeyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+    }
+    
+    private func getCategoryKeywords(from keywords: [String]) -> String {
+        // Map specific keywords to broader category terms
+        let categoryMap: [String: String] = [
+            "lamp": "lighting,home decor",
+            "pillow": "cushion,home decor",
+            "clock": "timepiece,home decor",
+            "wireless": "electronics,technology",
+            "bluetooth": "electronics,technology",
+            "makeup": "beauty,cosmetics",
+            "cream": "skincare,beauty",
+            "wallet": "accessories,fashion",
+            "scarf": "accessories,fashion",
+            "pet": "animals,pet supplies",
+            "dog": "animals,pet supplies",
+            "flower": "plants,home decor",
+            "bread": "baking,food",
+            "honey": "natural,food",
+            "coffee": "beverage,food"
+        ]
+        
+        for keyword in keywords {
+            if let category = categoryMap[keyword] {
+                return category
+            }
+        }
+        
+        // Default category mapping
+        if keywords.contains(where: { ["lamp", "pillow", "clock", "decor", "furniture"].contains($0) }) {
+            return "home decor,furniture"
+        } else if keywords.contains(where: { ["wireless", "bluetooth", "usb", "phone"].contains($0) }) {
+            return "electronics,technology"
+        } else if keywords.contains(where: { ["makeup", "cream", "nail", "hair"].contains($0) }) {
+            return "beauty,cosmetics"
+        } else if keywords.contains(where: { ["wallet", "scarf", "sunglasses", "watch"].contains($0) }) {
+            return "fashion,accessories"
+        } else if keywords.contains(where: { ["pet", "dog", "cat"].contains($0) }) {
+            return "animals,pet supplies"
+        } else if keywords.contains(where: { ["flower", "plant", "art"].contains($0) }) {
+            return "plants,home decor"
+        } else if keywords.contains(where: { ["bread", "honey", "coffee", "chocolate"].contains($0) }) {
+            return "food,baking"
+        }
+        
+        return "product"
     }
     
     private func categorizeProduct(name: String, description: String) -> String {
